@@ -17,14 +17,12 @@
 package com.google.firebase.ml.md.barcodedetection
 
 import android.animation.ValueAnimator
-import android.graphics.RectF
 import android.util.Log
 import androidx.annotation.MainThread
 import com.google.android.gms.tasks.Task
 import com.google.firebase.ml.md.camera.CameraReticleAnimator
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
-import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.md.camera.GraphicOverlay
 import com.google.firebase.ml.md.camera.WorkflowModel
@@ -37,15 +35,9 @@ import java.io.IOException
 class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel: WorkflowModel) : FrameProcessorBase<List<FirebaseVisionBarcode>>() {
 
     private val detector = FirebaseVision.getInstance().visionBarcodeDetector
-    private val cameraReticleAnimator: CameraReticleAnimator
+    private val cameraReticleAnimator: CameraReticleAnimator = CameraReticleAnimator(graphicOverlay)
 
-    init {
-        this.cameraReticleAnimator = CameraReticleAnimator(graphicOverlay)
-    }
-
-    override fun detectInImage(image: FirebaseVisionImage): Task<List<FirebaseVisionBarcode>> {
-        return detector.detectInImage(image)
-    }
+    override fun detectInImage(image: FirebaseVisionImage): Task<List<FirebaseVisionBarcode>> = detector.detectInImage(image)
 
     @MainThread
     override fun onSuccess(
@@ -59,16 +51,11 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
         Log.d(TAG, "Barcode result size: " + results.size)
 
         // Picks the barcode, if exists, that covers the center of graphic overlay.
-        var barcodeInCenter: FirebaseVisionBarcode? = null
 
-        for (barcode in results) {
-            val boundingBox = barcode.boundingBox?:continue
+        val barcodeInCenter = results.firstOrNull { barcode ->
+            val boundingBox = barcode.boundingBox ?: return@firstOrNull false
             val box = graphicOverlay.translateRect(boundingBox)
-            if (box.contains(graphicOverlay.width / 2f, graphicOverlay.height / 2f)) {
-                barcodeInCenter = barcode
-                break
-            }
-
+            box.contains(graphicOverlay.width / 2f, graphicOverlay.height / 2f)
         }
 
         graphicOverlay.clear()
@@ -105,18 +92,18 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
     private fun createLoadingAnimator(
             graphicOverlay: GraphicOverlay, barcode: FirebaseVisionBarcode): ValueAnimator {
         val endProgress = 1.1f
-        val loadingAnimator = ValueAnimator.ofFloat(0f, endProgress)
-        loadingAnimator.duration = 2000
-        loadingAnimator.addUpdateListener { animation ->
-            if (java.lang.Float.compare(loadingAnimator.animatedValue as Float, endProgress) >= 0) {
-                graphicOverlay.clear()
-                workflowModel.setWorkflowState(WorkflowState.SEARCHED)
-                workflowModel.detectedBarcode.setValue(barcode)
-            } else {
-                graphicOverlay.invalidate()
+        return ValueAnimator.ofFloat(0f, endProgress).apply {
+            duration = 2000
+            addUpdateListener {
+                if (java.lang.Float.compare(animatedValue as Float, endProgress) >= 0) {
+                    graphicOverlay.clear()
+                    workflowModel.setWorkflowState(WorkflowState.SEARCHED)
+                    workflowModel.detectedBarcode.setValue(barcode)
+                } else {
+                    graphicOverlay.invalidate()
+                }
             }
         }
-        return loadingAnimator
     }
 
     override fun onFailure(e: Exception) {
@@ -133,7 +120,6 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
     }
 
     companion object {
-
-        private val TAG = "BarcodeProcessor"
+        private const val TAG = "BarcodeProcessor"
     }
 }

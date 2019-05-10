@@ -16,7 +16,6 @@
 
 package com.google.firebase.ml.md.barcodedetection
 
-import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Paint.Style
@@ -38,7 +37,6 @@ internal class BarcodeReticleGraphic(overlay: GraphicOverlay, private val animat
     private val rippleAlpha: Int
 
     init {
-
         val resources = overlay.resources
         ripplePaint = Paint()
         ripplePaint.style = Style.STROKE
@@ -48,9 +46,8 @@ internal class BarcodeReticleGraphic(overlay: GraphicOverlay, private val animat
         rippleAlpha = ripplePaint.alpha
     }
 
-    public override fun draw(canvas: Canvas) {
+    override fun draw(canvas: Canvas) {
         super.draw(canvas)
-
         // Draws the ripple to simulate the breathing animation effect.
         ripplePaint.alpha = (rippleAlpha * animator.rippleAlphaScale).toInt()
         ripplePaint.strokeWidth = rippleStrokeWidth * animator.rippleStrokeWidthScale
@@ -60,6 +57,6 @@ internal class BarcodeReticleGraphic(overlay: GraphicOverlay, private val animat
                 boxRect.top - offset,
                 boxRect.right + offset,
                 boxRect.bottom + offset)
-        canvas.drawRoundRect(rippleRect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), ripplePaint)
+        canvas.drawRoundRect(rippleRect, boxCornerRadius, boxCornerRadius, ripplePaint)
     }
 }

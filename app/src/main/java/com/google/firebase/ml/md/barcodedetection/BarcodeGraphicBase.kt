@@ -32,37 +32,31 @@ import com.google.firebase.ml.md.settings.PreferenceUtils
 
 internal abstract class BarcodeGraphicBase(overlay: GraphicOverlay) : Graphic(overlay) {
 
-    private val boxPaint: Paint
-    private val scrimPaint: Paint
-    private val eraserPaint: Paint
-
-    val boxCornerRadius: Int
-    val pathPaint: Paint
-    val boxRect: RectF
-
-    init {
-
-        boxPaint = Paint()
-        boxPaint.color = ContextCompat.getColor(context, R.color.barcode_reticle_stroke)
-        boxPaint.style = Paint.Style.STROKE
-        boxPaint.strokeWidth = context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_stroke_width).toFloat()
-
-        scrimPaint = Paint()
-        scrimPaint.color = ContextCompat.getColor(context, R.color.barcode_reticle_background)
-        eraserPaint = Paint()
-        eraserPaint.strokeWidth = boxPaint.strokeWidth
-        eraserPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
-
-        boxCornerRadius = context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_corner_radius)
-
-        pathPaint = Paint()
-        pathPaint.color = Color.WHITE
-        pathPaint.style = Paint.Style.STROKE
-        pathPaint.strokeWidth = boxPaint.strokeWidth
-        pathPaint.pathEffect = CornerPathEffect(boxCornerRadius.toFloat())
-
-        boxRect = PreferenceUtils.getBarcodeReticleBox(overlay)
+    private val boxPaint: Paint = Paint().apply{
+        color = ContextCompat.getColor(context, R.color.barcode_reticle_stroke)
+        style = Style.STROKE
+        strokeWidth = context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_stroke_width).toFloat()
     }
+
+    private val scrimPaint: Paint = Paint().apply{
+        color = ContextCompat.getColor(context, R.color.barcode_reticle_background)
+    }
+
+    private val eraserPaint: Paint = Paint().apply{
+        strokeWidth = boxPaint.strokeWidth
+        xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+    }
+
+    val boxCornerRadius: Float = context.resources.getDimensionPixelOffset(R.dimen.barcode_reticle_corner_radius).toFloat()
+
+    val pathPaint: Paint = Paint().apply{
+        color = Color.WHITE
+        style = Style.STROKE
+        strokeWidth = boxPaint.strokeWidth
+        pathEffect = CornerPathEffect(boxCornerRadius)
+    }
+
+    val boxRect: RectF = PreferenceUtils.getBarcodeReticleBox(overlay)
 
     override fun draw(canvas: Canvas) {
         // Draws the dark background scrim and leaves the box area clear.
@@ -70,11 +64,10 @@ internal abstract class BarcodeGraphicBase(overlay: GraphicOverlay) : Graphic(ov
         // As the stroke is always centered, so erase twice with FILL and STROKE respectively to clear
         // all area that the box rect would occupy.
         eraserPaint.style = Style.FILL
-        canvas.drawRoundRect(boxRect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), eraserPaint)
+        canvas.drawRoundRect(boxRect, boxCornerRadius, boxCornerRadius, eraserPaint)
         eraserPaint.style = Style.STROKE
-        canvas.drawRoundRect(boxRect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), eraserPaint)
-
+        canvas.drawRoundRect(boxRect, boxCornerRadius, boxCornerRadius, eraserPaint)
         // Draws the box.
-        canvas.drawRoundRect(boxRect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), boxPaint)
+        canvas.drawRoundRect(boxRect, boxCornerRadius, boxCornerRadius, boxPaint)
     }
 }

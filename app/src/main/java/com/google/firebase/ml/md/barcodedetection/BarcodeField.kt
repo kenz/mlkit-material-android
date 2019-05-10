@@ -20,25 +20,9 @@ import android.os.Parcel
 import android.os.Parcelable
 
 /** Information about a barcode field.  */
-class BarcodeField : Parcelable {
+class BarcodeField(internal val label:String, internal val value:String) : Parcelable {
 
-    internal val label: String?
-    internal val value: String?
-
-    constructor(label: String, value: String) {
-        this.label = label
-        this.value = value
-    }
-
-    private constructor(`in`: Parcel) {
-        label = `in`.readString()
-        value = `in`.readString()
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
+    override fun describeContents() = 0
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(label)
         dest.writeString(value)
@@ -48,13 +32,12 @@ class BarcodeField : Parcelable {
 
         @JvmField
         val CREATOR: Parcelable.Creator<BarcodeField> = object : Parcelable.Creator<BarcodeField> {
-            override fun createFromParcel(`in`: Parcel): BarcodeField {
-                return BarcodeField(`in`)
-            }
+            override fun createFromParcel(parcel: Parcel): BarcodeField
+                = BarcodeField( label = parcel.readString()?:"", value = parcel.readString()?:"" )
 
-            override fun newArray(size: Int): Array<BarcodeField?> {
-                return arrayOfNulls(size)
-            }
+            override fun newArray(size: Int): Array<BarcodeField?>
+                = arrayOfNulls(size)
+
         }
     }
 }

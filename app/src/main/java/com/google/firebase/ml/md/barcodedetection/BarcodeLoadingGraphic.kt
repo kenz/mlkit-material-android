@@ -25,24 +25,18 @@ import com.google.firebase.ml.md.camera.GraphicOverlay
 
 /** Draws the graphic to indicate the barcode result is in loading.  */
 internal class BarcodeLoadingGraphic(overlay: GraphicOverlay, private val loadingAnimator: ValueAnimator) : BarcodeGraphicBase(overlay) {
-    private val boxClockwiseCoordinates: Array<PointF>
-    private val coordinateOffsetBits: Array<Point>
+    private val boxClockwiseCoordinates: Array<PointF> = arrayOf(PointF(boxRect.left, boxRect.top), PointF(boxRect.right, boxRect.top), PointF(boxRect.right, boxRect.bottom), PointF(boxRect.left, boxRect.bottom))
+    private val coordinateOffsetBits: Array<Point> = arrayOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1))
     private val lastPathPoint = PointF()
 
-    init {
-        boxClockwiseCoordinates = arrayOf(PointF(boxRect.left, boxRect.top), PointF(boxRect.right, boxRect.top), PointF(boxRect.right, boxRect.bottom), PointF(boxRect.left, boxRect.bottom))
-        coordinateOffsetBits = arrayOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1))
-    }
-
-    public override fun draw(canvas: Canvas) {
+    override fun draw(canvas: Canvas) {
         super.draw(canvas)
 
         val boxPerimeter = (boxRect.width() + boxRect.height()) * 2
         val path = Path()
         // The distance between the box's left-top corner and the starting point of white colored path.
         var offsetLen = boxPerimeter * loadingAnimator.animatedValue as Float % boxPerimeter
-        var i: Int
-        i = 0
+        var i = 0
         while (i < 4) {
             val edgeLen = if (i % 2 == 0) boxRect.width() else boxRect.height()
             if (offsetLen <= edgeLen) {
