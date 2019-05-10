@@ -18,6 +18,7 @@ package com.google.firebase.ml.md.barcodedetection
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -32,35 +33,38 @@ import com.google.firebase.ml.md.camera.WorkflowModel
 import com.google.firebase.ml.md.camera.WorkflowModel.WorkflowState
 import java.util.ArrayList
 
+
 /** Displays the bottom sheet to present barcode fields contained in the detected barcode.  */
 class BarcodeResultFragment : BottomSheetDialogFragment() {
 
     override fun onCreateView(
             layoutInflater: LayoutInflater,
             viewGroup: ViewGroup?,
-            bundle: Bundle?): View? {
+            bundle: Bundle?): View {
         val view = layoutInflater.inflate(R.layout.barcode_bottom_sheet, viewGroup)
+
         val arguments = arguments
         val barcodeFieldList: ArrayList<BarcodeField> =
-        if (arguments?.containsKey(ARG_BARCODE_FIELD_LIST) == true) {
-             arguments.getParcelableArrayList(ARG_BARCODE_FIELD_LIST)?:ArrayList()
-        } else {
-            Log.e(TAG, "No barcode field list passed in!")
-             ArrayList()
-        }
+                if (arguments?.containsKey(ARG_BARCODE_FIELD_LIST) == true) {
+                    arguments.getParcelableArrayList(ARG_BARCODE_FIELD_LIST) ?: ArrayList()
+                } else {
+                    Log.e(TAG, "No barcode field list passed in!")
+                    ArrayList()
+                }
 
-        val fieldRecyclerView = view.findViewById<RecyclerView>(R.id.barcode_field_recycler_view)
-        fieldRecyclerView.setHasFixedSize(true)
-        fieldRecyclerView.layoutManager = LinearLayoutManager(activity)
-        fieldRecyclerView.adapter = BarcodeFieldAdapter(barcodeFieldList)
+        view.findViewById<RecyclerView>(R.id.barcode_field_recycler_view).apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(activity)
+            adapter = BarcodeFieldAdapter(barcodeFieldList)
+        }
 
         return view
     }
 
     override fun onDismiss(dialogInterface: DialogInterface) {
-        if (activity != null) {
+        activity?.let {
             // Back to working state after the bottom sheet is dismissed.
-            ViewModelProviders.of(activity!!)
+            ViewModelProviders.of(it)
                     .get<WorkflowModel>(WorkflowModel::class.java)
                     .setWorkflowState(WorkflowState.DETECTING)
         }
@@ -69,21 +73,20 @@ class BarcodeResultFragment : BottomSheetDialogFragment() {
 
     companion object {
 
-        private val TAG = "BarcodeResultFragment"
-        private val ARG_BARCODE_FIELD_LIST = "arg_barcode_field_list"
+        private const val TAG = "BarcodeResultFragment"
+        private const val ARG_BARCODE_FIELD_LIST = "arg_barcode_field_list"
 
-        fun show(
-                fragmentManager: FragmentManager, barcodeFieldArrayList: ArrayList<BarcodeField>) {
+        fun show(fragmentManager: FragmentManager, barcodeFieldArrayList: ArrayList<BarcodeField>) {
             val barcodeResultFragment = BarcodeResultFragment()
-            val bundle = Bundle()
-            bundle.putParcelableArrayList(ARG_BARCODE_FIELD_LIST, barcodeFieldArrayList)
-            barcodeResultFragment.arguments = bundle
+            barcodeResultFragment.arguments = Bundle().apply {
+                putParcelableArrayList(ARG_BARCODE_FIELD_LIST, barcodeFieldArrayList)
+            }
             barcodeResultFragment.show(fragmentManager, TAG)
         }
 
         fun dismiss(fragmentManager: FragmentManager) {
-            val barcodeResultFragment = fragmentManager.findFragmentByTag(TAG) as BarcodeResultFragment?
-            barcodeResultFragment?.dismiss()
+            (fragmentManager.findFragmentByTag(TAG) as BarcodeResultFragment?)?.dismiss()
         }
     }
 }
+
