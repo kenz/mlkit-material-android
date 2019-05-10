@@ -56,9 +56,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
             previewSizePreference.summary = previewSizePreference.entry
             previewSizePreference.setOnPreferenceChangeListener { preference, newValue ->
                 val newPreviewSizeStringValue = newValue as String
+                val context = activity?:return@setOnPreferenceChangeListener false
                 previewSizePreference.summary = newPreviewSizeStringValue
                 PreferenceUtils.saveStringPreference(
-                        activity,
+                        context,
                         R.string.pref_key_rear_camera_picture_size,
                         previewToPictureSizeStringMap[newPreviewSizeStringValue])
                 true

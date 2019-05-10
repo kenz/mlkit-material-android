@@ -30,7 +30,7 @@ import com.google.firebase.ml.md.productsearch.ProductAdapter.ProductViewHolder
 /** Presents the list of product items from cloud product search.  */
 class ProductAdapter(private val productList: List<Product>) : Adapter<ProductViewHolder>() {
 
-    internal class ProductViewHolder private constructor(view: View) : RecyclerView.ViewHolder(view) {
+    class ProductViewHolder private constructor(view: View) : RecyclerView.ViewHolder(view) {
 
         private val imageView: ImageView
         private val titleView: TextView

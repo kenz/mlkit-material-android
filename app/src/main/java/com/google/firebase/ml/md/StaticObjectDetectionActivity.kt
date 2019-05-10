@@ -191,7 +191,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
 
                         val collapsedStateHeight = Math.min(bottomSheetBehavior!!.peekHeight, bottomSheet.height)
                         bottomSheetScrimView!!.updateWithThumbnailTranslate(
-                                searchedObjectForBottomSheet!!.objectThumbnail,
+                                searchedObjectForBottomSheet!!.getObjectThumbnail(),
                                 collapsedStateHeight,
                                 slideOffset,
                                 bottomSheet)
@@ -209,7 +209,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
         productRecyclerView!!.adapter = ProductAdapter(ImmutableList.of())
     }
 
-    private fun detectObjects(imageUri: Uri?) {
+    private fun detectObjects(imageUri: Uri) {
         inputImageView!!.setImageDrawable(null)
         bottomPromptChip!!.visibility = View.GONE
         previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.of(), this)
@@ -220,7 +220,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
         try {
             inputBitmap = Utils.loadImage(this, imageUri, MAX_IMAGE_DIMENSION)
         } catch (e: IOException) {
-            Log.e(TAG, "Failed to load file: " + imageUri!!, e)
+            Log.e(TAG, "Failed to load file: " + imageUri, e)
             showBottomPromptChip("Failed to load file!")
             return
         }
@@ -347,7 +347,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
         bottomPromptChip!!.text = message
     }
 
-    private class CardItemDecoration private constructor(resources: Resources) : RecyclerView.ItemDecoration() {
+    private class CardItemDecoration constructor(resources: Resources) : RecyclerView.ItemDecoration() {
 
         private val cardSpacing: Int
 

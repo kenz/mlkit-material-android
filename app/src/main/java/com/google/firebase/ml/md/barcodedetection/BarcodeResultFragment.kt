@@ -40,13 +40,13 @@ class BarcodeResultFragment : BottomSheetDialogFragment() {
             viewGroup: ViewGroup?,
             bundle: Bundle?): View? {
         val view = layoutInflater.inflate(R.layout.barcode_bottom_sheet, viewGroup)
-        val barcodeFieldList: ArrayList<BarcodeField>?
         val arguments = arguments
-        if (arguments != null && arguments.containsKey(ARG_BARCODE_FIELD_LIST)) {
-            barcodeFieldList = arguments.getParcelableArrayList(ARG_BARCODE_FIELD_LIST)
+        val barcodeFieldList: ArrayList<BarcodeField> =
+        if (arguments?.containsKey(ARG_BARCODE_FIELD_LIST) == true) {
+             arguments.getParcelableArrayList(ARG_BARCODE_FIELD_LIST)?:ArrayList()
         } else {
             Log.e(TAG, "No barcode field list passed in!")
-            barcodeFieldList = ArrayList()
+             ArrayList()
         }
 
         val fieldRecyclerView = view.findViewById<RecyclerView>(R.id.barcode_field_recycler_view)
@@ -61,7 +61,7 @@ class BarcodeResultFragment : BottomSheetDialogFragment() {
         if (activity != null) {
             // Back to working state after the bottom sheet is dismissed.
             ViewModelProviders.of(activity!!)
-                    .get<WorkflowModel>(WorkflowModel::class.java!!)
+                    .get<WorkflowModel>(WorkflowModel::class.java)
                     .setWorkflowState(WorkflowState.DETECTING)
         }
         super.onDismiss(dialogInterface)

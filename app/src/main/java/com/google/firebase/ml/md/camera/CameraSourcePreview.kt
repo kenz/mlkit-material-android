@@ -71,7 +71,9 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(c
             requestLayout()
 
             if (graphicOverlay != null) {
-                graphicOverlay!!.setCameraInfo(cameraSource)
+                cameraSource?.let{
+                    graphicOverlay!!.setCameraInfo(it)
+                }
                 graphicOverlay!!.clear()
             }
             startRequested = false

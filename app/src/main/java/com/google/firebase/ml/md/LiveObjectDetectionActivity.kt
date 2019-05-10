@@ -30,6 +30,7 @@ import android.view.View.OnClickListener
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -120,9 +121,9 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
         currentWorkflowState = WorkflowState.NOT_STARTED
         cameraSource!!.setFrameProcessor(
                 if (PreferenceUtils.isMultipleObjectsMode(this))
-                    MultiObjectProcessor(graphicOverlay, workflowModel)
+                    MultiObjectProcessor(graphicOverlay!!, workflowModel!!)
                 else
-                    ProminentObjectProcessor(graphicOverlay, workflowModel))
+                    ProminentObjectProcessor(graphicOverlay!!, workflowModel!!))
         workflowModel!!.setWorkflowState(WorkflowState.DETECTING)
     }
 
@@ -182,7 +183,8 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
         if (!workflowModel!!.isCameraLive && cameraSource != null) {
             try {
                 workflowModel!!.markCameraLive()
-                preview!!.start(cameraSource)
+                preview!!.start(cameraSource!!)
+
             } catch (e: IOException) {
                 Log.e(TAG, "Failed to start camera preview!", e)
                 cameraSource!!.release()
@@ -229,14 +231,14 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
                         if (slidingSheetUpFromHiddenState) {
                             val thumbnailSrcRect = graphicOverlay!!.translateRect(searchedObject.boundingBox)
                             bottomSheetScrimView!!.updateWithThumbnailTranslateAndScale(
-                                    objectThumbnailForBottomSheet,
+                                    objectThumbnailForBottomSheet!!,
                                     collapsedStateHeight,
                                     slideOffset,
                                     thumbnailSrcRect)
 
                         } else {
                             bottomSheetScrimView!!.updateWithThumbnailTranslate(
-                                    objectThumbnailForBottomSheet, collapsedStateHeight, slideOffset, bottomSheet)
+                                    objectThumbnailForBottomSheet!!, collapsedStateHeight, slideOffset, bottomSheet)
                         }
                     }
                 })
@@ -258,9 +260,9 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
         // camera preview state.
         workflowModel!!.workflowState.observe(
                 this,
-                { workflowState ->
+                Observer { workflowState ->
                     if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
-                        return@workflowModel.workflowState.observe
+                        return@Observer
                     }
 
                     currentWorkflowState = workflowState
@@ -275,24 +277,24 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
 
         // Observes changes on the object to search, if happens, fire product search request.
         workflowModel!!.objectToSearch.observe(
-                this, { `object` -> searchEngine!!.search(`object`, workflowModel) })
+                this, Observer { `object` -> searchEngine!!.search(`object`, workflowModel!!) })
 
         // Observes changes on the object that has search completed, if happens, show the bottom sheet
         // to present search result.
         workflowModel!!.searchedObject.observe(
                 this,
-                { searchedObject ->
-                    if (searchedObject != null) {
-                        val productList = searchedObject!!.productList
-                        objectThumbnailForBottomSheet = searchedObject!!.getObjectThumbnail()
-                        bottomSheetTitleView!!.text = resources
-                                .getQuantityString(
-                                        R.plurals.bottom_sheet_title, productList.size, productList.size)
-                        productRecyclerView!!.adapter = ProductAdapter(productList)
-                        slidingSheetUpFromHiddenState = true
-                        bottomSheetBehavior!!.peekHeight = preview!!.height / 2
-                        bottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
-                    }
+                Observer { nullableSearchedObject ->
+                    val searchedObject= nullableSearchedObject ?: return@Observer
+                    val productList = searchedObject.productList
+                    objectThumbnailForBottomSheet = searchedObject.getObjectThumbnail()
+                    bottomSheetTitleView!!.text = resources
+                            .getQuantityString(
+                                    R.plurals.bottom_sheet_title, productList.size, productList.size)
+                    productRecyclerView!!.adapter = ProductAdapter(productList)
+                    slidingSheetUpFromHiddenState = true
+                    bottomSheetBehavior!!.peekHeight = preview!!.height / 2
+                    bottomSheetBehavior!!.state = BottomSheetBehavior.STATE_COLLAPSED
+
                 })
     }
 

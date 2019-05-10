@@ -58,7 +58,7 @@ class DetectedObject(private val `object`: FirebaseVisionObject, val objectIndex
 
     @Synchronized
     fun getBitmap(): Bitmap {
-        if (bitmap == null) {
+        return bitmap?:let{
             val boundingBox = `object`.boundingBox
             bitmap = Bitmap.createBitmap(
                     image.bitmap,
@@ -70,9 +70,9 @@ class DetectedObject(private val `object`: FirebaseVisionObject, val objectIndex
                 val dstHeight = (MAX_IMAGE_WIDTH.toFloat() / bitmap!!.width * bitmap!!.height).toInt()
                 bitmap = Bitmap.createScaledBitmap(bitmap!!, MAX_IMAGE_WIDTH, dstHeight, /* filter= */ false)
             }
+            bitmap!!
         }
 
-        return bitmap
     }
 
     companion object {

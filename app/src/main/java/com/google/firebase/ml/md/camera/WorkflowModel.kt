@@ -119,14 +119,16 @@ class WorkflowModel(application: Application) : AndroidViewModel(application), S
     }
 
     override fun onSearchCompleted(`object`: DetectedObject, products: List<Product>) {
-        if (`object` != confirmedObject) {
+        val lConfirmedObject = confirmedObject
+        if (`object` != lConfirmedObject) {
             // Drops the search result from the object that has lost focus.
             return
         }
 
         objectIdsToSearch.remove(`object`.objectId)
         setWorkflowState(WorkflowState.SEARCHED)
-        searchedObject.setValue(
-                SearchedObject(context.resources, confirmedObject, products))
+
+        searchedObject.value = SearchedObject(context.resources, lConfirmedObject, products)
+
     }
 }

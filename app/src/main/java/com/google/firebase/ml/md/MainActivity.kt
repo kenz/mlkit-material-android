@@ -31,7 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 /** Entry activity to select the detection mode.  */
 class MainActivity : AppCompatActivity() {
 
-    private enum class DetectionMode private constructor(private val titleResId: Int, private val subtitleResId: Int) {
+    private enum class DetectionMode private constructor(val titleResId: Int, val subtitleResId: Int) {
         ODT_LIVE(R.string.mode_odt_live_title, R.string.mode_odt_live_subtitle),
         ODT_STATIC(R.string.mode_odt_static_title, R.string.mode_odt_static_subtitle),
         BARCODE_LIVE(R.string.mode_barcode_live_title, R.string.mode_barcode_live_subtitle)

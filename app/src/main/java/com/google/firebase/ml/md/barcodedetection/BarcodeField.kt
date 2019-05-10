@@ -46,12 +46,13 @@ class BarcodeField : Parcelable {
 
     companion object {
 
+        @JvmField
         val CREATOR: Parcelable.Creator<BarcodeField> = object : Parcelable.Creator<BarcodeField> {
             override fun createFromParcel(`in`: Parcel): BarcodeField {
                 return BarcodeField(`in`)
             }
 
-            override fun newArray(size: Int): Array<BarcodeField> {
+            override fun newArray(size: Int): Array<BarcodeField?> {
                 return arrayOfNulls(size)
             }
         }

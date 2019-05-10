@@ -22,7 +22,6 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.view.View
-import com.google.android.gms.common.images.Size
 import com.google.firebase.ml.md.Utils
 import java.util.ArrayList
 
@@ -54,11 +53,7 @@ class GraphicOverlay(context: Context, attrs: AttributeSet) : View(context, attr
      * instances to the overlay using [GraphicOverlay.add].
      */
     abstract class Graphic protected constructor(protected val overlay: GraphicOverlay) {
-        protected val context: Context
-
-        init {
-            this.context = overlay.context
-        }
+        protected val context: Context = overlay.context
 
         /** Draws the graphic on the supplied canvas.  */
         abstract fun draw(canvas: Canvas)

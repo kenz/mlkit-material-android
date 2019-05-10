@@ -49,11 +49,11 @@ class StaticObjectDotView @JvmOverloads constructor(context: Context, selected: 
     fun playAnimationWithSelectedState(selected: Boolean) {
         val radiusOffsetAnimator: ValueAnimator
         if (selected) {
-            radiusOffsetAnimator = ValueAnimator.ofFloat(0f, radiusOffsetRange)
+            radiusOffsetAnimator = ValueAnimator.ofFloat(0f, radiusOffsetRange.toFloat())
                     .setDuration(DOT_SELECTION_ANIMATOR_DURATION_MS)
             radiusOffsetAnimator.startDelay = DOT_DESELECTION_ANIMATOR_DURATION_MS
         } else {
-            radiusOffsetAnimator = ValueAnimator.ofFloat(radiusOffsetRange, 0f)
+            radiusOffsetAnimator = ValueAnimator.ofFloat(radiusOffsetRange.toFloat(), 0f)
                     .setDuration(DOT_DESELECTION_ANIMATOR_DURATION_MS)
         }
         radiusOffsetAnimator.interpolator = FastOutSlowInInterpolator()

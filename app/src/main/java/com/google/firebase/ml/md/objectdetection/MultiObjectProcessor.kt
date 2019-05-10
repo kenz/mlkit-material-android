@@ -151,10 +151,7 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
     }
 
     private fun removeAnimatorsFromUntrackedObjects(detectedObjects: List<FirebaseVisionObject>) {
-        val trackingIds = ArrayList<Int>()
-        for (`object` in detectedObjects) {
-            trackingIds.add(`object`.trackingId)
-        }
+        val trackingIds = detectedObjects.map { it.trackingId }.filterNotNull()
         // Stop and remove animators from the objects that have lost tracking.
         val removedTrackingIds = ArrayList<Int>()
         for ((key, value) in objectDotAnimatorMap) {

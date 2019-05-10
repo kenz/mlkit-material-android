@@ -85,9 +85,9 @@ object Utils {
                     .packageManager
                     .getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
             val ps = info.requestedPermissions
-            return if (ps != null && ps.size > 0) ps else arrayOfNulls(0)
+            return if (ps != null && ps.size > 0) ps else arrayOf()
         } catch (e: Exception) {
-            return arrayOfNulls(0)
+            return arrayOf()
         }
 
     }

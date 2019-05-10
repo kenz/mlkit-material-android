@@ -17,4 +17,4 @@
 package com.google.firebase.ml.md.camera
 
 /** Metadata info of a camera frame.  */
-internal class FrameMetadata(val width: Int, val height: Int, val rotation: Int)
+class FrameMetadata(val width: Int, val height: Int, val rotation: Int)

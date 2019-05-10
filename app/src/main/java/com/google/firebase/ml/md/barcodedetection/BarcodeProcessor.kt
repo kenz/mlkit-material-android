@@ -60,12 +60,15 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
 
         // Picks the barcode, if exists, that covers the center of graphic overlay.
         var barcodeInCenter: FirebaseVisionBarcode? = null
+
         for (barcode in results) {
-            val box = graphicOverlay.translateRect(barcode.boundingBox)
+            val boundingBox = barcode.boundingBox?:continue
+            val box = graphicOverlay.translateRect(boundingBox)
             if (box.contains(graphicOverlay.width / 2f, graphicOverlay.height / 2f)) {
                 barcodeInCenter = barcode
                 break
             }
+
         }
 
         graphicOverlay.clear()

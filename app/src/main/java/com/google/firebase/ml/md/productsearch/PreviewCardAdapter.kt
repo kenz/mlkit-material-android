@@ -50,7 +50,7 @@ class PreviewCardAdapter(
         return searchedObjectList.size
     }
 
-    internal class CardViewHolder private constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class CardViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val imageView: ImageView
         private val titleView: TextView
@@ -64,7 +64,7 @@ class PreviewCardAdapter(
             imageSize = itemView.resources.getDimensionPixelOffset(R.dimen.preview_card_image_size)
         }
 
-        private fun bindProducts(products: List<Product>) {
+        internal fun bindProducts(products: List<Product>) {
             if (products.isEmpty()) {
                 imageView.visibility = View.GONE
                 titleView.setText(R.string.static_image_card_no_result_title)

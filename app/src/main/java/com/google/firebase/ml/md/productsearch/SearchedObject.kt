@@ -41,9 +41,10 @@ class SearchedObject(resources: Resources, private val `object`: DetectedObject,
 
     @Synchronized
     fun getObjectThumbnail(): Bitmap {
-        if (objectThumbnail == null) {
-            objectThumbnail = Utils.getCornerRoundedBitmap(`object`.bitmap, objectThumbnailCornerRadius)
+        return objectThumbnail?:let {
+            val bitmap = Utils.getCornerRoundedBitmap(`object`.getBitmap(), objectThumbnailCornerRadius)
+            objectThumbnail = bitmap
+            bitmap
         }
-        return objectThumbnail
     }
 }

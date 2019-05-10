@@ -72,7 +72,7 @@ abstract class FrameProcessorBase<T> : FrameProcessor {
                         this@FrameProcessorBase.onSuccess(image, results, graphicOverlay)
                         processLatestFrame(graphicOverlay)
                     }
-                    .addOnFailureListener(OnFailureListener { this@FrameProcessorBase.onFailure(it) })
+                    .addOnFailureListener { this@FrameProcessorBase.onFailure(it) }
         }
     }
 
@@ -86,6 +86,6 @@ abstract class FrameProcessorBase<T> : FrameProcessor {
 
     companion object {
 
-        private val TAG = "FrameProcessorBase"
+        private const val TAG = "FrameProcessorBase"
     }
 }

@@ -25,6 +25,7 @@ import android.util.Log
 import android.view.View
 import android.view.View.OnClickListener
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.chip.Chip
 import com.google.common.base.Objects
@@ -81,7 +82,7 @@ class LiveBarcodeScanningActivity : AppCompatActivity(), OnClickListener {
         workflowModel!!.markCameraFrozen()
         settingsButton!!.isEnabled = true
         currentWorkflowState = WorkflowState.NOT_STARTED
-        cameraSource!!.setFrameProcessor(BarcodeProcessor(graphicOverlay, workflowModel))
+        cameraSource!!.setFrameProcessor(BarcodeProcessor(graphicOverlay!!, workflowModel!!))
         workflowModel!!.setWorkflowState(WorkflowState.DETECTING)
     }
 
@@ -129,7 +130,9 @@ class LiveBarcodeScanningActivity : AppCompatActivity(), OnClickListener {
         if (!workflowModel!!.isCameraLive && cameraSource != null) {
             try {
                 workflowModel!!.markCameraLive()
-                preview!!.start(cameraSource)
+                cameraSource?.let{
+                    preview!!.start(it)
+                }
             } catch (e: IOException) {
                 Log.e(TAG, "Failed to start camera preview!", e)
                 cameraSource!!.release()
@@ -148,57 +151,57 @@ class LiveBarcodeScanningActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun setUpWorkflowModel() {
-        workflowModel = ViewModelProviders.of(this).get(WorkflowModel::class.java!!)
+        workflowModel = ViewModelProviders.of(this).get(WorkflowModel::class.java)
 
         // Observes the workflow state changes, if happens, update the overlay view indicators and
         // camera preview state.
         workflowModel!!.workflowState.observe(
-                this,
-                { workflowState ->
-                    if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
-                        return@workflowModel.workflowState.observe
-                    }
+                this, Observer
+        { workflowState ->
+            if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
+                return@Observer
+            }
 
-                    currentWorkflowState = workflowState
-                    Log.d(TAG, "Current workflow state: " + currentWorkflowState!!.name)
+            currentWorkflowState = workflowState
+            Log.d(TAG, "Current workflow state: " + currentWorkflowState!!.name)
 
-                    val wasPromptChipGone = promptChip!!.visibility == View.GONE
+            val wasPromptChipGone = promptChip!!.visibility == View.GONE
 
-                    when (workflowState) {
-                        WorkflowModel.WorkflowState.DETECTING -> {
-                            promptChip!!.visibility = View.VISIBLE
-                            promptChip!!.setText(R.string.prompt_point_at_a_barcode)
-                            startCameraPreview()
-                        }
-                        WorkflowModel.WorkflowState.CONFIRMING -> {
-                            promptChip!!.visibility = View.VISIBLE
-                            promptChip!!.setText(R.string.prompt_move_camera_closer)
-                            startCameraPreview()
-                        }
-                        WorkflowModel.WorkflowState.SEARCHING -> {
-                            promptChip!!.visibility = View.VISIBLE
-                            promptChip!!.setText(R.string.prompt_searching)
-                            stopCameraPreview()
-                        }
-                        WorkflowModel.WorkflowState.DETECTED, WorkflowModel.WorkflowState.SEARCHED -> {
-                            promptChip!!.visibility = View.GONE
-                            stopCameraPreview()
-                        }
-                        else -> promptChip!!.visibility = View.GONE
-                    }
+            when (workflowState) {
+                WorkflowModel.WorkflowState.DETECTING -> {
+                    promptChip!!.visibility = View.VISIBLE
+                    promptChip!!.setText(R.string.prompt_point_at_a_barcode)
+                    startCameraPreview()
+                }
+                WorkflowModel.WorkflowState.CONFIRMING -> {
+                    promptChip!!.visibility = View.VISIBLE
+                    promptChip!!.setText(R.string.prompt_move_camera_closer)
+                    startCameraPreview()
+                }
+                WorkflowModel.WorkflowState.SEARCHING -> {
+                    promptChip!!.visibility = View.VISIBLE
+                    promptChip!!.setText(R.string.prompt_searching)
+                    stopCameraPreview()
+                }
+                WorkflowModel.WorkflowState.DETECTED, WorkflowModel.WorkflowState.SEARCHED -> {
+                    promptChip!!.visibility = View.GONE
+                    stopCameraPreview()
+                }
+                else -> promptChip!!.visibility = View.GONE
+            }
 
-                    val shouldPlayPromptChipEnteringAnimation = wasPromptChipGone && promptChip!!.visibility == View.VISIBLE
-                    if (shouldPlayPromptChipEnteringAnimation && !promptChipAnimator!!.isRunning) {
-                        promptChipAnimator!!.start()
-                    }
-                })
+            val shouldPlayPromptChipEnteringAnimation = wasPromptChipGone && promptChip!!.visibility == View.VISIBLE
+            if (shouldPlayPromptChipEnteringAnimation && !promptChipAnimator!!.isRunning) {
+                promptChipAnimator!!.start()
+            }
+        })
 
         workflowModel!!.detectedBarcode.observe(
                 this,
-                { barcode ->
+                Observer { barcode ->
                     if (barcode != null) {
                         val barcodeFieldList = ArrayList<BarcodeField>()
-                        barcodeFieldList.add(BarcodeField("Raw Value", barcode!!.getRawValue()))
+                        barcodeFieldList.add(BarcodeField("Raw Value", barcode.rawValue ?: ""))
                         BarcodeResultFragment.show(supportFragmentManager, barcodeFieldList)
                     }
                 })

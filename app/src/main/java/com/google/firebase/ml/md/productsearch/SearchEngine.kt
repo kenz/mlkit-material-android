@@ -24,6 +24,7 @@ import com.android.volley.toolbox.Volley
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.ml.md.objectdetection.DetectedObject
 import java.util.ArrayList
+import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -44,8 +45,8 @@ class SearchEngine(context: Context) {
 
     fun search(`object`: DetectedObject, listener: SearchResultListener) {
         // Crops the object image out of the full image is expensive, so do it off the UI thread.
-        Tasks.call<JsonObjectRequest>(requestCreationExecutor, { createRequest(`object`) })
-                .addOnSuccessListener { productRequest -> searchRequestQueue.add<*>(productRequest.setTag(TAG)) }
+        Tasks.call<JsonObjectRequest>(requestCreationExecutor, createRequest(`object`) )
+                .addOnSuccessListener { productRequest -> searchRequestQueue.add(productRequest.setTag(TAG)) }
                 .addOnFailureListener { e ->
                     Log.e(TAG, "Failed to create product search request!", e)
                     // Remove the below dummy code after your own product search backed hooked up.
@@ -64,11 +65,10 @@ class SearchEngine(context: Context) {
     }
 
     companion object {
-
         private val TAG = "SearchEngine"
 
         @Throws(Exception::class)
-        private fun createRequest(searchingObject: DetectedObject): JsonObjectRequest {
+        private fun createRequest(searchingObject: DetectedObject): Callable<JsonObjectRequest> {
             val objectImageData = searchingObject.imageData
                     ?: throw Exception("Failed to get object image data!")
 

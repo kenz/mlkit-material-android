@@ -205,7 +205,7 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
 
         camera.parameters = parameters
 
-        camera.setPreviewCallbackWithBuffer(PreviewCallback { data, camera -> processingRunnable.setNextFrame(data, camera) })
+        camera.setPreviewCallbackWithBuffer(Camera.PreviewCallback { data, camera -> processingRunnable.setNextFrame(data, camera) })
 
         // Four frame buffers are needed for working with the camera:
         //
@@ -326,7 +326,7 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
     private inner class FrameProcessingRunnable internal constructor() : Runnable {
 
         // This lock guards all of the member variables below.
-        private val lock = Any()
+        private val lock = Object()
         private var active = true
 
         // These pending variables hold the state associated with the new frame awaiting processing.
@@ -381,7 +381,7 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
          * FPS setting above to allow for some idle time in between frames.
          */
         override fun run() {
-            var data: ByteBuffer
+            var data: ByteBuffer?
 
             while (true) {
                 synchronized(lock) {
@@ -413,12 +413,16 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
                 try {
                     synchronized(processorLock) {
                         val frameMetadata = FrameMetadata(previewSize!!.width, previewSize!!.height, rotation)
-                        frameProcessor!!.process(data, frameMetadata, graphicOverlay)
+                        data?.let{
+                            frameProcessor?.process(it, frameMetadata, graphicOverlay)
+                        }
                     }
                 } catch (t: Exception) {
                     Log.e(TAG, "Exception thrown from receiver.", t)
                 } finally {
-                    camera!!.addCallbackBuffer(data.array())
+                    data?.let{
+                        camera?.addCallbackBuffer(it.array())
+                    }
                 }
             }
         }
