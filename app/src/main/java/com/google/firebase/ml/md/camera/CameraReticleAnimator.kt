@@ -92,14 +92,14 @@ class CameraReticleAnimator(graphicOverlay: GraphicOverlay) {
 
     companion object {
 
-        private val DURATION_RIPPLE_FADE_IN_MS: Long = 333
-        private val DURATION_RIPPLE_FADE_OUT_MS: Long = 500
-        private val DURATION_RIPPLE_EXPAND_MS: Long = 833
-        private val DURATION_RIPPLE_STROKE_WIDTH_SHRINK_MS: Long = 833
-        private val DURATION_RESTART_DORMANCY_MS: Long = 1333
-        private val START_DELAY_RIPPLE_FADE_OUT_MS: Long = 667
-        private val START_DELAY_RIPPLE_EXPAND_MS: Long = 333
-        private val START_DELAY_RIPPLE_STROKE_WIDTH_SHRINK_MS: Long = 333
-        private val START_DELAY_RESTART_DORMANCY_MS: Long = 1167
+        private const val DURATION_RIPPLE_FADE_IN_MS: Long = 333
+        private const val DURATION_RIPPLE_FADE_OUT_MS: Long = 500
+        private const val DURATION_RIPPLE_EXPAND_MS: Long = 833
+        private const val DURATION_RIPPLE_STROKE_WIDTH_SHRINK_MS: Long = 833
+        private const val DURATION_RESTART_DORMANCY_MS: Long = 1333
+        private const val START_DELAY_RIPPLE_FADE_OUT_MS: Long = 667
+        private const val START_DELAY_RIPPLE_EXPAND_MS: Long = 333
+        private const val START_DELAY_RIPPLE_STROKE_WIDTH_SHRINK_MS: Long = 333
+        private const val START_DELAY_RESTART_DORMANCY_MS: Long = 1167
     }
 }
