@@ -58,7 +58,7 @@ import java.io.IOException
 import java.util.TreeMap
 
 /** Demonstrates the object detection and visual search workflow using static image.  */
-class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener, PreviewCardAdapter.CardItemListener, SearchResultListener {
+class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener, SearchResultListener {
 
     private val searchedObjectMap = TreeMap<Int, SearchedObject>()
 
@@ -160,10 +160,6 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    override fun onPreviewCardClicked(searchedObject: SearchedObject) {
-        showSearchResults(searchedObject)
-    }
-
     private fun showSearchResults(searchedObject: SearchedObject) {
         searchedObjectForBottomSheet = searchedObject
         val productList = searchedObject.productList
@@ -212,7 +208,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
     private fun detectObjects(imageUri: Uri) {
         inputImageView!!.setImageDrawable(null)
         bottomPromptChip!!.visibility = View.GONE
-        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.of(), this)
+        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.of()) { showSearchResults(it) }
         previewCardCarousel!!.clearOnScrollListeners()
         dotViewContainer!!.removeAllViews()
         currentSelectedObjectIndex = 0
@@ -259,7 +255,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
 
         showBottomPromptChip(getString(R.string.static_image_prompt_detected_results))
         loadingView!!.visibility = View.GONE
-        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.copyOf(searchedObjectMap.values), this)
+        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.copyOf(searchedObjectMap.values)) { showSearchResults(it) }
         previewCardCarousel!!.addOnScrollListener(
                 object : RecyclerView.OnScrollListener() {
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

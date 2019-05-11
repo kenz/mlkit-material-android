@@ -27,12 +27,7 @@ import com.google.firebase.ml.md.R
 
 /** Powers the bottom card carousel for displaying the preview of product search result.  */
 class PreviewCardAdapter(
-        private val searchedObjectList: List<SearchedObject>, private val cardItemListener: CardItemListener) : RecyclerView.Adapter<PreviewCardAdapter.CardViewHolder>() {
-
-    /** Listens to user's interaction with the preview card item.  */
-    interface CardItemListener {
-        fun onPreviewCardClicked(searchedObject: SearchedObject)
-    }
+        private val searchedObjectList: List<SearchedObject>, private val previewCordClickedListener: (searchedObject:SearchedObject)->Any) : RecyclerView.Adapter<PreviewCardAdapter.CardViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CardViewHolder {
         return CardViewHolder(
@@ -43,26 +38,17 @@ class PreviewCardAdapter(
     override fun onBindViewHolder(holder: CardViewHolder, position: Int) {
         val searchedObject = searchedObjectList[position]
         holder.bindProducts(searchedObject.productList)
-        holder.itemView.setOnClickListener { v -> cardItemListener.onPreviewCardClicked(searchedObject) }
+        holder.itemView.setOnClickListener { previewCordClickedListener.invoke(searchedObject) }
     }
 
-    override fun getItemCount(): Int {
-        return searchedObjectList.size
-    }
+    override fun getItemCount(): Int = searchedObjectList.size
 
     class CardViewHolder internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        private val imageView: ImageView
-        private val titleView: TextView
-        private val subtitleView: TextView
-        private val imageSize: Int
-
-        init {
-            imageView = itemView.findViewById(R.id.card_image)
-            titleView = itemView.findViewById(R.id.card_title)
-            subtitleView = itemView.findViewById(R.id.card_subtitle)
-            imageSize = itemView.resources.getDimensionPixelOffset(R.dimen.preview_card_image_size)
-        }
+        private val imageView: ImageView = itemView.findViewById(R.id.card_image)
+        private val titleView: TextView = itemView.findViewById(R.id.card_title)
+        private val subtitleView: TextView = itemView.findViewById(R.id.card_subtitle)
+        private val imageSize: Int = itemView.resources.getDimensionPixelOffset(R.dimen.preview_card_image_size)
 
         internal fun bindProducts(products: List<Product>) {
             if (products.isEmpty()) {
