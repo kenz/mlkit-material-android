@@ -47,25 +47,30 @@ internal class ObjectReticleGraphic(overlay: GraphicOverlay, private val animato
     init {
 
         val resources = overlay.resources
-        outerRingFillPaint = Paint()
-        outerRingFillPaint.style = Style.FILL
-        outerRingFillPaint.color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_fill)
+        outerRingFillPaint = Paint().apply{
+            style = Style.FILL
+            color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_fill)
+        }
 
-        outerRingStrokePaint = Paint()
-        outerRingStrokePaint.style = Style.STROKE
-        outerRingStrokePaint.strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
-        outerRingStrokePaint.strokeCap = Cap.ROUND
-        outerRingStrokePaint.color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_stroke)
+        outerRingStrokePaint = Paint().apply{
+            style = Style.STROKE
+            strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
+            strokeCap = Cap.ROUND
+            color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_stroke)
+        }
 
-        innerRingStrokePaint = Paint()
-        innerRingStrokePaint.style = Style.STROKE
-        innerRingStrokePaint.strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_inner_ring_stroke_width).toFloat()
-        innerRingStrokePaint.strokeCap = Cap.ROUND
-        innerRingStrokePaint.color = ContextCompat.getColor(context, R.color.white)
+        innerRingStrokePaint = Paint().apply{
+            style = Style.STROKE
+            strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_inner_ring_stroke_width).toFloat()
+            strokeCap = Cap.ROUND
+            color = ContextCompat.getColor(context, R.color.white)
+        }
 
-        ripplePaint = Paint()
-        ripplePaint.style = Style.STROKE
-        ripplePaint.color = ContextCompat.getColor(context, R.color.reticle_ripple)
+
+        ripplePaint = Paint().apply{
+            style = Style.STROKE
+            color = ContextCompat.getColor(context, R.color.reticle_ripple)
+        }
 
         outerRingFillRadius = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_fill_radius)
         outerRingStrokeRadius = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_radius)
@@ -75,7 +80,7 @@ internal class ObjectReticleGraphic(overlay: GraphicOverlay, private val animato
         rippleAlpha = ripplePaint.alpha
     }
 
-    public override fun draw(canvas: Canvas) {
+    override fun draw(canvas: Canvas) {
         val cx = canvas.width / 2f
         val cy = canvas.height / 2f
         canvas.drawCircle(cx, cy, outerRingFillRadius.toFloat(), outerRingFillPaint)
