@@ -28,16 +28,13 @@ import java.io.IOException
 /**
  * Holds the detected object and its related image info.
  */
-class DetectedObject(private val `object`: FirebaseVisionObject, val objectIndex: Int, private val image: FirebaseVisionImage) {
+class DetectedObject(private val visionObject: FirebaseVisionObject, val objectIndex: Int, private val image: FirebaseVisionImage) {
 
     private var bitmap: Bitmap? = null
     private var jpegBytes: ByteArray? = null
 
-    val objectId: Int?
-        get() = `object`.trackingId
-
-    val boundingBox: Rect
-        get() = `object`.boundingBox
+    val objectId: Int? = visionObject.trackingId
+    val boundingBox: Rect = visionObject.boundingBox
 
     /* quality= */ val imageData: ByteArray?
         @Synchronized get() {
@@ -59,25 +56,25 @@ class DetectedObject(private val `object`: FirebaseVisionObject, val objectIndex
     @Synchronized
     fun getBitmap(): Bitmap {
         return bitmap?:let{
-            val boundingBox = `object`.boundingBox
-            bitmap = Bitmap.createBitmap(
+            val boundingBox = visionObject.boundingBox
+            val createdBitmap = Bitmap.createBitmap(
                     image.bitmap,
                     boundingBox.left,
                     boundingBox.top,
                     boundingBox.width(),
                     boundingBox.height())
-            if (bitmap!!.width > MAX_IMAGE_WIDTH) {
-                val dstHeight = (MAX_IMAGE_WIDTH.toFloat() / bitmap!!.width * bitmap!!.height).toInt()
-                bitmap = Bitmap.createScaledBitmap(bitmap!!, MAX_IMAGE_WIDTH, dstHeight, /* filter= */ false)
+            if (createdBitmap.width > MAX_IMAGE_WIDTH) {
+                val dstHeight = (MAX_IMAGE_WIDTH.toFloat() / createdBitmap.width * createdBitmap.height).toInt()
+                bitmap = Bitmap.createScaledBitmap(createdBitmap, MAX_IMAGE_WIDTH, dstHeight, /* filter= */ false)
             }
-            bitmap!!
+            createdBitmap
         }
 
     }
 
     companion object {
 
-        private val TAG = "DetectedObject"
-        private val MAX_IMAGE_WIDTH = 640
+        private const val TAG = "DetectedObject"
+        private const val MAX_IMAGE_WIDTH = 640
     }
 }

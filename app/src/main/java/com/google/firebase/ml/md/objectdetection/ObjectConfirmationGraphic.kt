@@ -46,28 +46,30 @@ class ObjectConfirmationGraphic internal constructor(
     init {
 
         val resources = overlay.resources
-        outerRingFillPaint = Paint()
-        outerRingFillPaint.style = Style.FILL
-        outerRingFillPaint.color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_fill)
+        outerRingFillPaint = Paint().apply {
+            style = Style.FILL
+            color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_fill)
+        }
 
-        outerRingStrokePaint = Paint()
-        outerRingStrokePaint.style = Style.STROKE
-        outerRingStrokePaint.strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
-        outerRingStrokePaint.strokeCap = Cap.ROUND
-        outerRingStrokePaint.color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_stroke)
+        outerRingStrokePaint = Paint().apply{
+            style = Style.STROKE
+            strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
+            strokeCap = Cap.ROUND
+            color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_stroke)
+        }
 
-        progressRingStrokePaint = Paint()
-        progressRingStrokePaint.style = Style.STROKE
-        progressRingStrokePaint.strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
-        progressRingStrokePaint.strokeCap = Cap.ROUND
-        progressRingStrokePaint.color = ContextCompat.getColor(context, R.color.white)
+        progressRingStrokePaint = Paint().apply{
+            style = Style.STROKE
+            strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
+            strokeCap = Cap.ROUND
+            color = ContextCompat.getColor(context, R.color.white)
+        }
 
+        innerRingPaint = Paint()
         if (PreferenceUtils.isMultipleObjectsMode(overlay.context)) {
-            innerRingPaint = Paint()
             innerRingPaint.style = Style.FILL
             innerRingPaint.color = ContextCompat.getColor(context, R.color.object_reticle_inner_ring)
         } else {
-            innerRingPaint = Paint()
             innerRingPaint.style = Style.STROKE
             innerRingPaint.strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_inner_ring_stroke_width).toFloat()
             innerRingPaint.strokeCap = Cap.ROUND

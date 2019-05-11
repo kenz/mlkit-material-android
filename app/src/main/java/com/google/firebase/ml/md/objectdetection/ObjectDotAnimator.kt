@@ -77,9 +77,9 @@ internal class ObjectDotAnimator(graphicOverlay: GraphicOverlay) {
     companion object {
 
         // All these time constants are in millisecond unit.
-        private val DURATION_DOT_SCALE_UP_MS: Long = 217
-        private val DURATION_DOT_SCALE_DOWN_MS: Long = 783
-        private val DURATION_DOT_FADE_IN_MS: Long = 150
-        private val START_DELAY_DOT_SCALE_DOWN_MS: Long = 217
+        private const val DURATION_DOT_SCALE_UP_MS: Long = 217
+        private const val DURATION_DOT_SCALE_DOWN_MS: Long = 783
+        private const val DURATION_DOT_FADE_IN_MS: Long = 150
+        private const val START_DELAY_DOT_SCALE_DOWN_MS: Long = 217
     }
 }

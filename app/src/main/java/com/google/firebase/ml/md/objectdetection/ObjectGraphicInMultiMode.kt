@@ -16,7 +16,6 @@
 
 package com.google.firebase.ml.md.objectdetection
 
-import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.LinearGradient
@@ -33,11 +32,11 @@ import com.google.firebase.ml.md.camera.GraphicOverlay.Graphic
 import com.google.firebase.ml.md.R
 
 /**
- * Draws the detected object info over the camera preview for multiple objects detection mode.
+ * Draws the detected detectedObject info over the camera preview for multiple objects detection mode.
  */
 internal class ObjectGraphicInMultiMode(
         overlay: GraphicOverlay,
-        private val `object`: DetectedObject,
+        private val detectedObject: DetectedObject,
         private val confirmationController: ObjectConfirmationController) : Graphic(overlay) {
 
     private val boxPaint: Paint
@@ -53,37 +52,40 @@ internal class ObjectGraphicInMultiMode(
     init {
 
         val resources = context.resources
-        boxPaint = Paint()
-        boxPaint.style = Style.STROKE
-        boxPaint.strokeWidth = resources.getDimensionPixelOffset(
-                if (confirmationController.isConfirmed)
-                    R.dimen.bounding_box_confirmed_stroke_width
-                else
-                    R.dimen.bounding_box_stroke_width).toFloat()
-        boxPaint.color = Color.WHITE
+        boxPaint = Paint().apply {
+            style = Style.STROKE
+            strokeWidth = resources.getDimensionPixelOffset(
+                    if (confirmationController.isConfirmed)
+                        R.dimen.bounding_box_confirmed_stroke_width
+                    else
+                        R.dimen.bounding_box_stroke_width).toFloat()
+            color = Color.WHITE
+        }
 
         boxGradientStartColor = ContextCompat.getColor(context, R.color.bounding_box_gradient_start)
         boxGradientEndColor = ContextCompat.getColor(context, R.color.bounding_box_gradient_end)
         boxCornerRadius = resources.getDimensionPixelOffset(R.dimen.bounding_box_corner_radius)
 
-        scrimPaint = Paint()
-        scrimPaint.shader = LinearGradient(
-                0f,
-                0f,
-                overlay.width.toFloat(),
-                overlay.height.toFloat(),
-                ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_start),
-                ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_end),
-                TileMode.MIRROR)
+        scrimPaint = Paint().apply {
+            shader = LinearGradient(
+                    0f,
+                    0f,
+                    overlay.width.toFloat(),
+                    overlay.height.toFloat(),
+                    ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_start),
+                    ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_end),
+                    TileMode.MIRROR)
+        }
 
-        eraserPaint = Paint()
-        eraserPaint.xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        eraserPaint = Paint().apply {
+            xfermode = PorterDuffXfermode(PorterDuff.Mode.CLEAR)
+        }
 
         minBoxLen = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_radius) * 2
     }
 
     public override fun draw(canvas: Canvas) {
-        var rect = overlay.translateRect(`object`.boundingBox)
+        var rect = overlay.translateRect(detectedObject.boundingBox)
 
         val boxWidth = rect.width() * confirmationController.progress
         val boxHeight = rect.height() * confirmationController.progress
@@ -98,7 +100,7 @@ internal class ObjectGraphicInMultiMode(
         rect = RectF(cx - boxWidth / 2f, cy - boxHeight / 2f, cx + boxWidth / 2f, cy + boxHeight / 2f)
 
         if (confirmationController.isConfirmed) {
-            // Draws the dark background scrim and leaves the object area clear.
+            // Draws the dark background scrim and leaves the detectedObject area clear.
             canvas.drawRect(0f, 0f, canvas.width.toFloat(), canvas.height.toFloat(), scrimPaint)
             canvas.drawRoundRect(rect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), eraserPaint)
         }
