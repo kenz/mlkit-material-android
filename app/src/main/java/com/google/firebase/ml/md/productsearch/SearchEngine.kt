@@ -31,21 +31,12 @@ import java.util.concurrent.Executors
 /** A fake search engine to help simulate the complete work flow.  */
 class SearchEngine(context: Context) {
 
-    private val searchRequestQueue: RequestQueue
-    private val requestCreationExecutor: ExecutorService
+    private val searchRequestQueue: RequestQueue = Volley.newRequestQueue(context)
+    private val requestCreationExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    interface SearchResultListener {
-        fun onSearchCompleted(`object`: DetectedObject, productList: List<Product>)
-    }
-
-    init {
-        searchRequestQueue = Volley.newRequestQueue(context)
-        requestCreationExecutor = Executors.newSingleThreadExecutor()
-    }
-
-    fun search(`object`: DetectedObject, listener: SearchResultListener) {
+    fun search(detectedObject: DetectedObject, listener: (detectedObject:DetectedObject, productList:List<Product>)->Unit) {
         // Crops the object image out of the full image is expensive, so do it off the UI thread.
-        Tasks.call<JsonObjectRequest>(requestCreationExecutor, Callable{  createRequest(`object`)} )
+        Tasks.call<JsonObjectRequest>(requestCreationExecutor, Callable{  createRequest(detectedObject)} )
                 .addOnSuccessListener { productRequest -> searchRequestQueue.add(productRequest.setTag(TAG)) }
                 .addOnFailureListener { e ->
                     Log.e(TAG, "Failed to create product search request!", e)
@@ -55,7 +46,7 @@ class SearchEngine(context: Context) {
                         productList.add(
                                 Product(/* imageUrl= */"", "Product title $i", "Product subtitle $i"))
                     }
-                    listener.onSearchCompleted(`object`, productList)
+                    listener.invoke(detectedObject, productList)
                 }
     }
 
@@ -65,7 +56,7 @@ class SearchEngine(context: Context) {
     }
 
     companion object {
-        private val TAG = "SearchEngine"
+        private const val TAG = "SearchEngine"
 
         @Throws(Exception::class)
         private fun createRequest(searchingObject: DetectedObject): JsonObjectRequest {

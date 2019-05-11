@@ -32,7 +32,7 @@ import com.google.firebase.ml.md.settings.PreferenceUtils
 import java.util.HashSet
 
 /** View model for handling application workflow based on camera preview.  */
-class WorkflowModel(application: Application) : AndroidViewModel(application), SearchResultListener {
+class WorkflowModel(application: Application) : AndroidViewModel(application) {
 
     val workflowState = MutableLiveData<WorkflowState>()
     val objectToSearch = MutableLiveData<DetectedObject>()
@@ -118,7 +118,7 @@ class WorkflowModel(application: Application) : AndroidViewModel(application), S
         isCameraLive = false
     }
 
-    override fun onSearchCompleted(detectedObject: DetectedObject, products: List<Product>) {
+    fun onSearchCompleted(detectedObject: DetectedObject, products: List<Product>) {
         val lConfirmedObject = confirmedObject
         if (detectedObject != lConfirmedObject) {
             // Drops the search result from the object that has lost focus.
