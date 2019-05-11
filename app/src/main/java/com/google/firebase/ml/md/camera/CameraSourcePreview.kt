@@ -30,19 +30,16 @@ import java.io.IOException
 /** Preview the camera image in the screen.  */
 class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
 
-    private val surfaceView: SurfaceView
+    private val surfaceView: SurfaceView = SurfaceView(context).apply {
+        holder.addCallback(SurfaceCallback())
+        addView(this)
+    }
     private var graphicOverlay: GraphicOverlay? = null
     private var startRequested = false
     private var surfaceAvailable = false
     private var cameraSource: CameraSource? = null
     private var cameraPreviewSize: Size? = null
 
-    init {
-
-        surfaceView = SurfaceView(context)
-        surfaceView.holder.addCallback(SurfaceCallback())
-        addView(surfaceView)
-    }
 
     override fun onFinishInflate() {
         super.onFinishInflate()
@@ -57,8 +54,8 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(c
     }
 
     fun stop() {
-        if (cameraSource != null) {
-            cameraSource!!.stop()
+        cameraSource?.let {
+            it.stop()
             cameraSource = null
             startRequested = false
         }
@@ -67,14 +64,14 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(c
     @Throws(IOException::class)
     private fun startIfReady() {
         if (startRequested && surfaceAvailable) {
-            cameraSource!!.start(surfaceView.holder)
+            cameraSource?.start(surfaceView.holder)
             requestLayout()
 
-            if (graphicOverlay != null) {
-                cameraSource?.let{
-                    graphicOverlay!!.setCameraInfo(it)
+            graphicOverlay?.let { overlay ->
+                cameraSource?.let {
+                    overlay.setCameraInfo(it)
                 }
-                graphicOverlay!!.clear()
+                overlay.clear()
             }
             startRequested = false
         }
@@ -84,19 +81,16 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(c
         val layoutWidth = right - left
         val layoutHeight = bottom - top
 
-        if (cameraSource != null && cameraSource!!.previewSize != null) {
-            cameraPreviewSize = cameraSource!!.previewSize
-        }
+        cameraSource?.previewSize?.let { cameraPreviewSize = it }
 
-        var previewSizeRatio = layoutWidth.toFloat() / layoutHeight
-        if (cameraPreviewSize != null) {
+        val previewSizeRatio = cameraPreviewSize?.let { size ->
             if (Utils.isPortraitMode(context)) {
                 // Camera's natural orientation is landscape, so need to swap width and height.
-                previewSizeRatio = cameraPreviewSize!!.height.toFloat() / cameraPreviewSize!!.width
+                size.height.toFloat() / size.width
             } else {
-                previewSizeRatio = cameraPreviewSize!!.width.toFloat() / cameraPreviewSize!!.height
+                size.width.toFloat() / size.height
             }
-        }
+        } ?: layoutWidth.toFloat() / layoutHeight.toFloat()
 
         // Computes height and width for potentially doing fit width.
         var childWidth = layoutWidth
@@ -139,6 +133,6 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(c
     }
 
     companion object {
-        private val TAG = "CameraSourcePreview"
+        private const val TAG = "CameraSourcePreview"
     }
 }

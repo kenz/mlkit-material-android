@@ -79,36 +79,32 @@ class GraphicOverlay(context: Context, attrs: AttributeSet) : View(context, attr
      * coordinates later.
      */
     fun setCameraInfo(cameraSource: CameraSource) {
-        val previewSize = cameraSource.previewSize
+        val previewSize = cameraSource.previewSize ?: return
         if (Utils.isPortraitMode(context)) {
             // Swap width and height when in portrait, since camera's natural orientation is landscape.
-            previewWidth = previewSize!!.height
+            previewWidth = previewSize.height
             previewHeight = previewSize.width
         } else {
-            previewWidth = previewSize!!.width
+            previewWidth = previewSize.width
             previewHeight = previewSize.height
         }
     }
 
-    fun translateX(x: Float): Float {
-        return x * widthScaleFactor
-    }
+    fun translateX(x: Float): Float = x * widthScaleFactor
 
-    fun translateY(y: Float): Float {
-        return y * heightScaleFactor
-    }
+
+    fun translateY(y: Float): Float = y * heightScaleFactor
 
     /**
      * Adjusts the `rect`'s coordinate from the preview's coordinate system to the view
      * coordinate system.
      */
-    fun translateRect(rect: Rect): RectF {
-        return RectF(
-                translateX(rect.left.toFloat()),
-                translateY(rect.top.toFloat()),
-                translateX(rect.right.toFloat()),
-                translateY(rect.bottom.toFloat()))
-    }
+    fun translateRect(rect: Rect) = RectF(
+            translateX(rect.left.toFloat()),
+            translateY(rect.top.toFloat()),
+            translateX(rect.right.toFloat()),
+            translateY(rect.bottom.toFloat()))
+
 
     /** Draws the overlay with its associated graphic objects.  */
     override fun onDraw(canvas: Canvas) {
@@ -120,9 +116,7 @@ class GraphicOverlay(context: Context, attrs: AttributeSet) : View(context, attr
         }
 
         synchronized(lock) {
-            for (graphic in graphics) {
-                graphic.draw(canvas)
-            }
+            graphics.forEach { it.draw(canvas) }
         }
     }
 }
