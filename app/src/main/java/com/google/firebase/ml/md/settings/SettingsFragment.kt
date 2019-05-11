@@ -36,9 +36,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
     private fun setUpRearCameraPreviewSizePreference() {
         val previewSizePreference = findPreference(getString(R.string.pref_key_rear_camera_preview_size)) as ListPreference
-                ?: return
 
         var camera: Camera? = null
+
         try {
             camera = Camera.open(CameraSource.CAMERA_FACING_BACK)
             val previewSizeList = Utils.generateValidPreviewSizeList(camera!!)
@@ -54,9 +54,9 @@ class SettingsFragment : PreferenceFragmentCompat() {
             previewSizePreference.entries = previewSizeStringValues
             previewSizePreference.entryValues = previewSizeStringValues
             previewSizePreference.summary = previewSizePreference.entry
-            previewSizePreference.setOnPreferenceChangeListener { preference, newValue ->
+            previewSizePreference.setOnPreferenceChangeListener { _, newValue ->
                 val newPreviewSizeStringValue = newValue as String
-                val context = activity?:return@setOnPreferenceChangeListener false
+                val context = activity ?: return@setOnPreferenceChangeListener false
                 previewSizePreference.summary = newPreviewSizeStringValue
                 PreferenceUtils.saveStringPreference(
                         context,
@@ -67,9 +67,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         } catch (e: Exception) {
             // If there's no camera for the given camera id, hide the corresponding preference.
-            if (previewSizePreference.parent != null) {
-                previewSizePreference.parent!!.removePreference(previewSizePreference)
-            }
+            previewSizePreference.parent?.removePreference(previewSizePreference)
         } finally {
             camera?.release()
         }
