@@ -52,13 +52,12 @@ import com.google.firebase.ml.md.productsearch.PreviewCardAdapter
 import com.google.firebase.ml.md.productsearch.Product
 import com.google.firebase.ml.md.productsearch.ProductAdapter
 import com.google.firebase.ml.md.productsearch.SearchEngine
-import com.google.firebase.ml.md.productsearch.SearchEngine.SearchResultListener
 import com.google.firebase.ml.md.productsearch.SearchedObject
 import java.io.IOException
 import java.util.TreeMap
 
 /** Demonstrates the object detection and visual search workflow using static image.  */
-class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener, PreviewCardAdapter.CardItemListener, SearchResultListener {
+class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener {
 
     private val searchedObjectMap = TreeMap<Int, SearchedObject>()
 
@@ -160,10 +159,6 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
         }
     }
 
-    override fun onPreviewCardClicked(searchedObject: SearchedObject) {
-        showSearchResults(searchedObject)
-    }
-
     private fun showSearchResults(searchedObject: SearchedObject) {
         searchedObjectForBottomSheet = searchedObject
         val productList = searchedObject.productList
@@ -212,7 +207,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
     private fun detectObjects(imageUri: Uri) {
         inputImageView!!.setImageDrawable(null)
         bottomPromptChip!!.visibility = View.GONE
-        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.of(), this)
+        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.of()) { showSearchResults(it) }
         previewCardCarousel!!.clearOnScrollListeners()
         dotViewContainer!!.removeAllViews()
         currentSelectedObjectIndex = 0
@@ -244,12 +239,15 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
         } else {
             searchedObjectMap.clear()
             for (i in objects.indices) {
-                searchEngine!!.search(DetectedObject(objects[i], i, image), /* listener= */ this)
+                searchEngine!!.search(DetectedObject(objects[i], i, image)) { detectedObject, products ->
+                    onSearchCompleted(detectedObject, products)
+
+                }
             }
         }
     }
 
-    override fun onSearchCompleted(`object`: DetectedObject, productList: List<Product>) {
+    private fun onSearchCompleted(`object`: DetectedObject, productList: List<Product>) {
         Log.d(TAG, "Search completed for object index: " + `object`.objectIndex)
         searchedObjectMap[`object`.objectIndex] = SearchedObject(resources, `object`, productList)
         if (searchedObjectMap.size < detectedObjectNum) {
@@ -259,7 +257,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener,
 
         showBottomPromptChip(getString(R.string.static_image_prompt_detected_results))
         loadingView!!.visibility = View.GONE
-        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.copyOf(searchedObjectMap.values), this)
+        previewCardCarousel!!.adapter = PreviewCardAdapter(ImmutableList.copyOf(searchedObjectMap.values)) { showSearchResults(it) }
         previewCardCarousel!!.addOnScrollListener(
                 object : RecyclerView.OnScrollListener() {
                     override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

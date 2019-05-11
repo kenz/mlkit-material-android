@@ -277,14 +277,14 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
 
         // Observes changes on the object to search, if happens, fire product search request.
         workflowModel!!.objectToSearch.observe(
-                this, Observer { `object` -> searchEngine!!.search(`object`, workflowModel!!) })
+                this, Observer { `object` -> searchEngine!!.search(`object`) { detectedObject, products -> workflowModel?.onSearchCompleted(detectedObject, products) } })
 
         // Observes changes on the object that has search completed, if happens, show the bottom sheet
         // to present search result.
         workflowModel!!.searchedObject.observe(
                 this,
                 Observer { nullableSearchedObject ->
-                    val searchedObject= nullableSearchedObject ?: return@Observer
+                    val searchedObject = nullableSearchedObject ?: return@Observer
                     val productList = searchedObject.productList
                     objectThumbnailForBottomSheet = searchedObject.getObjectThumbnail()
                     bottomSheetTitleView!!.text = resources

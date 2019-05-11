@@ -24,27 +24,20 @@ import com.google.firebase.ml.md.Utils
 import com.google.firebase.ml.md.objectdetection.DetectedObject
 
 /** Hosts the detected object info and its search result.  */
-class SearchedObject(resources: Resources, private val `object`: DetectedObject, val productList: List<Product>) {
-    private val objectThumbnailCornerRadius: Int
+class SearchedObject(resources: Resources, private val detectedObject: DetectedObject, val productList: List<Product>) {
 
+    private val objectThumbnailCornerRadius: Int = resources.getDimensionPixelOffset(R.dimen.bounding_box_corner_radius)
     private var objectThumbnail: Bitmap? = null
 
     val objectIndex: Int
-        get() = `object`.objectIndex
+        get() = detectedObject.objectIndex
 
     val boundingBox: Rect
-        get() = `object`.boundingBox
-
-    init {
-        this.objectThumbnailCornerRadius = resources.getDimensionPixelOffset(R.dimen.bounding_box_corner_radius)
-    }
+        get() = detectedObject.boundingBox
 
     @Synchronized
-    fun getObjectThumbnail(): Bitmap {
-        return objectThumbnail?:let {
-            val bitmap = Utils.getCornerRoundedBitmap(`object`.getBitmap(), objectThumbnailCornerRadius)
-            objectThumbnail = bitmap
-            bitmap
-        }
+    fun getObjectThumbnail(): Bitmap = objectThumbnail ?: let {
+        Utils.getCornerRoundedBitmap(detectedObject.getBitmap(), objectThumbnailCornerRadius)
+                .also { objectThumbnail = it }
     }
 }

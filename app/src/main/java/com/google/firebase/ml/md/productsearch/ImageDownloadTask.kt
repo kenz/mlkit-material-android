@@ -25,8 +25,10 @@ import android.widget.ImageView
 import java.io.InputStream
 import java.net.URL
 
+/** todo: migrate to Coroutines. */
 /** Async task to download the image and then feed into the provided image view.  */
 internal class ImageDownloadTask(private val imageView: ImageView, private val maxImageWidth: Int) : AsyncTask<String, Void, Bitmap>() {
+
 
     override fun doInBackground(vararg urls: String): Bitmap? {
         if (TextUtils.isEmpty(urls[0])) {
@@ -55,7 +57,8 @@ internal class ImageDownloadTask(private val imageView: ImageView, private val m
         }
     }
 
+
     companion object {
-        private val TAG = "ImageDownloadTask"
+        private const val TAG = "ImageDownloadTask"
     }
 }
