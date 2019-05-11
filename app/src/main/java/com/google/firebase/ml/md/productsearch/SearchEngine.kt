@@ -45,7 +45,7 @@ class SearchEngine(context: Context) {
 
     fun search(`object`: DetectedObject, listener: SearchResultListener) {
         // Crops the object image out of the full image is expensive, so do it off the UI thread.
-        Tasks.call<JsonObjectRequest>(requestCreationExecutor, createRequest(`object`) )
+        Tasks.call<JsonObjectRequest>(requestCreationExecutor, Callable{  createRequest(`object`)} )
                 .addOnSuccessListener { productRequest -> searchRequestQueue.add(productRequest.setTag(TAG)) }
                 .addOnFailureListener { e ->
                     Log.e(TAG, "Failed to create product search request!", e)
@@ -68,7 +68,7 @@ class SearchEngine(context: Context) {
         private val TAG = "SearchEngine"
 
         @Throws(Exception::class)
-        private fun createRequest(searchingObject: DetectedObject): Callable<JsonObjectRequest> {
+        private fun createRequest(searchingObject: DetectedObject): JsonObjectRequest {
             val objectImageData = searchingObject.imageData
                     ?: throw Exception("Failed to get object image data!")
 
