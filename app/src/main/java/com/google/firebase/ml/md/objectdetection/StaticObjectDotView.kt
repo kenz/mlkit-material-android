@@ -28,34 +28,31 @@ import com.google.firebase.ml.md.R
 /** Represents a detected object by drawing a circle dot at the center of object's bounding box.  */
 class StaticObjectDotView @JvmOverloads constructor(context: Context, selected: Boolean = false) : View(context) {
 
-    private val paint: Paint
-    private val unselectedDotRadius: Int
+    private val paint: Paint = Paint().apply {
+        style = Paint.Style.FILL
+    }
+    private val unselectedDotRadius: Int = context.resources.getDimensionPixelOffset(R.dimen.static_image_dot_radius_unselected)
     private val radiusOffsetRange: Int
 
     private var currentRadiusOffset: Float = 0.toFloat()
 
     init {
 
-        paint = Paint()
-        paint.style = Paint.Style.FILL
-
-        unselectedDotRadius = context.resources.getDimensionPixelOffset(R.dimen.static_image_dot_radius_unselected)
         val selectedDotRadius = context.resources.getDimensionPixelOffset(R.dimen.static_image_dot_radius_selected)
         radiusOffsetRange = selectedDotRadius - unselectedDotRadius
-
         currentRadiusOffset = (if (selected) radiusOffsetRange else 0).toFloat()
     }
 
     fun playAnimationWithSelectedState(selected: Boolean) {
-        val radiusOffsetAnimator: ValueAnimator
-        if (selected) {
-            radiusOffsetAnimator = ValueAnimator.ofFloat(0f, radiusOffsetRange.toFloat())
-                    .setDuration(DOT_SELECTION_ANIMATOR_DURATION_MS)
-            radiusOffsetAnimator.startDelay = DOT_DESELECTION_ANIMATOR_DURATION_MS
-        } else {
-            radiusOffsetAnimator = ValueAnimator.ofFloat(radiusOffsetRange.toFloat(), 0f)
+        val radiusOffsetAnimator: ValueAnimator = if (selected)
+            ValueAnimator.ofFloat(0f, radiusOffsetRange.toFloat())
+                    .setDuration(DOT_SELECTION_ANIMATOR_DURATION_MS).apply {
+                        startDelay = DOT_DESELECTION_ANIMATOR_DURATION_MS
+                    }
+        else
+            ValueAnimator.ofFloat(radiusOffsetRange.toFloat(), 0f)
                     .setDuration(DOT_DESELECTION_ANIMATOR_DURATION_MS)
-        }
+
         radiusOffsetAnimator.interpolator = FastOutSlowInInterpolator()
         radiusOffsetAnimator.addUpdateListener { animation ->
             currentRadiusOffset = animation.animatedValue as Float
@@ -75,7 +72,7 @@ class StaticObjectDotView @JvmOverloads constructor(context: Context, selected: 
 
     companion object {
 
-        private val DOT_SELECTION_ANIMATOR_DURATION_MS: Long = 116
-        private val DOT_DESELECTION_ANIMATOR_DURATION_MS: Long = 67
+        private const val DOT_SELECTION_ANIMATOR_DURATION_MS: Long = 116
+        private const val DOT_DESELECTION_ANIMATOR_DURATION_MS: Long = 67
     }
 }/* selected= */
