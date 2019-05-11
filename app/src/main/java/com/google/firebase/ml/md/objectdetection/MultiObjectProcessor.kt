@@ -17,9 +17,11 @@
 package com.google.firebase.ml.md.objectdetection
 
 import android.graphics.PointF
-import android.graphics.RectF
 import android.util.Log
+import android.util.SparseArray
 import androidx.annotation.MainThread
+import androidx.core.util.forEach
+import androidx.core.util.set
 import com.google.android.gms.tasks.Task
 import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
@@ -34,24 +36,19 @@ import com.google.firebase.ml.md.camera.FrameProcessorBase
 import com.google.firebase.ml.md.settings.PreferenceUtils
 import java.io.IOException
 import java.util.ArrayList
-import java.util.HashMap
-import kotlin.collections.Map.Entry
 
 /** A processor to run object detector in multi-objects mode.  */
 class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowModel: WorkflowModel) : FrameProcessorBase<List<FirebaseVisionObject>>() {
-    private val confirmationController: ObjectConfirmationController
-    private val cameraReticleAnimator: CameraReticleAnimator
-    private val objectSelectionDistanceThreshold: Int
+    private val confirmationController: ObjectConfirmationController = ObjectConfirmationController(graphicOverlay)
+    private val cameraReticleAnimator: CameraReticleAnimator = CameraReticleAnimator(graphicOverlay)
+    private val objectSelectionDistanceThreshold: Int = graphicOverlay
+            .resources
+            .getDimensionPixelOffset(R.dimen.object_selection_distance_threshold)
     private val detector: FirebaseVisionObjectDetector
     // Each new tracked object plays appearing animation exactly once.
-    private val objectDotAnimatorMap = HashMap<Int, ObjectDotAnimator>()
+    private val objectDotAnimatorArray= SparseArray<ObjectDotAnimator>()
 
     init {
-        this.confirmationController = ObjectConfirmationController(graphicOverlay)
-        this.cameraReticleAnimator = CameraReticleAnimator(graphicOverlay)
-        this.objectSelectionDistanceThreshold = graphicOverlay
-                .resources
-                .getDimensionPixelOffset(R.dimen.object_selection_distance_threshold)
 
         val optionsBuilder = FirebaseVisionObjectDetectorOptions.Builder()
                 .setDetectorMode(FirebaseVisionObjectDetectorOptions.STREAM_MODE)
@@ -78,18 +75,18 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
     @MainThread
     override fun onSuccess(
             image: FirebaseVisionImage,
-            objects: List<FirebaseVisionObject>,
+            results: List<FirebaseVisionObject>,
             graphicOverlay: GraphicOverlay) {
-        var objects = objects
+        var objects = results
         if (!workflowModel.isCameraLive) {
             return
         }
 
         if (PreferenceUtils.isClassificationEnabled(graphicOverlay.context)) {
             val qualifiedObjects = ArrayList<FirebaseVisionObject>()
-            for (`object` in objects) {
-                if (`object`.classificationCategory != FirebaseVisionObject.CATEGORY_UNKNOWN) {
-                    qualifiedObjects.add(`object`)
+            for (result in objects) {
+                if (result.classificationCategory != FirebaseVisionObject.CATEGORY_UNKNOWN) {
+                    qualifiedObjects.add(result)
                 }
             }
             objects = qualifiedObjects
@@ -101,11 +98,11 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
 
         var selectedObject: DetectedObject? = null
         for (i in objects.indices) {
-            val `object` = objects[i]
-            if (selectedObject == null && shouldSelectObject(graphicOverlay, `object`)) {
-                selectedObject = DetectedObject(`object`, i, image)
+            val result = objects[i]
+            if (selectedObject == null && shouldSelectObject(graphicOverlay, result)) {
+                selectedObject = DetectedObject(result, i, image)
                 // Starts the object confirmation once an object is regarded as selected.
-                confirmationController.confirming(`object`.trackingId)
+                confirmationController.confirming(result.trackingId)
                 graphicOverlay.add(ObjectConfirmationGraphic(graphicOverlay, confirmationController))
 
                 graphicOverlay.add(
@@ -117,15 +114,16 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
                     continue
                 }
 
-                var objectDotAnimator = objectDotAnimatorMap.get(`object`.trackingId)
-                if (objectDotAnimator == null) {
-                    objectDotAnimator = ObjectDotAnimator(graphicOverlay)
-                    objectDotAnimator.start()
-                    objectDotAnimatorMap[`object`.trackingId!!] = objectDotAnimator
+                val trackingId = result.trackingId?:return
+                val objectDotAnimator = objectDotAnimatorArray.get(trackingId)?:let{
+                    ObjectDotAnimator(graphicOverlay).apply{
+                        start()
+                        objectDotAnimatorArray[trackingId] = this
+                    }
                 }
                 graphicOverlay.add(
                         ObjectDotGraphic(
-                                graphicOverlay, DetectedObject(`object`, i, image), objectDotAnimator))
+                                graphicOverlay, DetectedObject(result, i, image), objectDotAnimator))
             }
         }
 
@@ -151,21 +149,23 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
     }
 
     private fun removeAnimatorsFromUntrackedObjects(detectedObjects: List<FirebaseVisionObject>) {
-        val trackingIds = detectedObjects.map { it.trackingId }.filterNotNull()
+        val trackingIds = detectedObjects.mapNotNull { it.trackingId }
         // Stop and remove animators from the objects that have lost tracking.
         val removedTrackingIds = ArrayList<Int>()
-        for ((key, value) in objectDotAnimatorMap) {
+        objectDotAnimatorArray.forEach { key, value ->
             if (!trackingIds.contains(key)) {
                 value.cancel()
                 removedTrackingIds.add(key)
             }
         }
-        objectDotAnimatorMap.keys.removeAll(removedTrackingIds)
+        removedTrackingIds.forEach{
+            objectDotAnimatorArray.remove(it)
+        }
     }
 
-    private fun shouldSelectObject(graphicOverlay: GraphicOverlay, `object`: FirebaseVisionObject): Boolean {
+    private fun shouldSelectObject(graphicOverlay: GraphicOverlay, visionObject: FirebaseVisionObject): Boolean {
         // Considers an object as selected when the camera reticle touches the object dot.
-        val box = graphicOverlay.translateRect(`object`.boundingBox)
+        val box = graphicOverlay.translateRect(visionObject.boundingBox)
         val objectCenter = PointF((box.left + box.right) / 2f, (box.top + box.bottom) / 2f)
         val reticleCenter = PointF(graphicOverlay.width / 2f, graphicOverlay.height / 2f)
         val distance = Math.hypot((objectCenter.x - reticleCenter.x).toDouble(), (objectCenter.y - reticleCenter.y).toDouble())
@@ -178,6 +178,6 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
 
     companion object {
 
-        private val TAG = "MultiObjectProcessor"
+        private const val TAG = "MultiObjectProcessor"
     }
 }
