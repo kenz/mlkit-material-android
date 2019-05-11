@@ -39,16 +39,13 @@ import java.util.ArrayList
 class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowModel: WorkflowModel) : FrameProcessorBase<List<FirebaseVisionObject>>() {
 
     private val detector: FirebaseVisionObjectDetector
-    private val confirmationController: ObjectConfirmationController
-    private val cameraReticleAnimator: CameraReticleAnimator
-    private val reticleOuterRingRadius: Int
+    private val confirmationController: ObjectConfirmationController = ObjectConfirmationController(graphicOverlay)
+    private val cameraReticleAnimator: CameraReticleAnimator = CameraReticleAnimator(graphicOverlay)
+    private val reticleOuterRingRadius: Int = graphicOverlay
+            .resources
+            .getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_radius)
 
     init {
-        confirmationController = ObjectConfirmationController(graphicOverlay)
-        cameraReticleAnimator = CameraReticleAnimator(graphicOverlay)
-        reticleOuterRingRadius = graphicOverlay
-                .resources
-                .getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_radius)
 
         val optionsBuilder = FirebaseVisionObjectDetectorOptions.Builder()
                 .setDetectorMode(FirebaseVisionObjectDetectorOptions.STREAM_MODE)
@@ -74,20 +71,16 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
     @MainThread
     override fun onSuccess(
             image: FirebaseVisionImage,
-            objects: List<FirebaseVisionObject>,
+            results: List<FirebaseVisionObject>,
             graphicOverlay: GraphicOverlay) {
-        var objects = objects
+        var objects = results
         if (!workflowModel.isCameraLive) {
             return
         }
 
         if (PreferenceUtils.isClassificationEnabled(graphicOverlay.context)) {
             val qualifiedObjects = ArrayList<FirebaseVisionObject>()
-            for (`object` in objects) {
-                if (`object`.classificationCategory != FirebaseVisionObject.CATEGORY_UNKNOWN) {
-                    qualifiedObjects.add(`object`)
-                }
-            }
+            qualifiedObjects.addAll(objects.filter{ it.classificationCategory != FirebaseVisionObject.CATEGORY_UNKNOWN })
             objects = qualifiedObjects
         }
 
@@ -96,12 +89,12 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
             workflowModel.setWorkflowState(WorkflowState.DETECTING)
         } else {
             val objectIndex = 0
-            val `object` = objects[objectIndex]
-            if (objectBoxOverlapsConfirmationReticle(graphicOverlay, `object`)) {
+            val visionObject = objects[objectIndex]
+            if (objectBoxOverlapsConfirmationReticle(graphicOverlay, visionObject)) {
                 // User is confirming the object selection.
-                confirmationController.confirming(`object`.trackingId)
+                confirmationController.confirming(visionObject.trackingId)
                 workflowModel.confirmingObject(
-                        DetectedObject(`object`, objectIndex, image), confirmationController.progress)
+                        DetectedObject(visionObject, objectIndex, image), confirmationController.progress)
             } else {
                 // Object detected but user doesn't want to pick this one.
                 confirmationController.reset()
@@ -138,8 +131,8 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
     }
 
     private fun objectBoxOverlapsConfirmationReticle(
-            graphicOverlay: GraphicOverlay, `object`: FirebaseVisionObject): Boolean {
-        val boxRect = graphicOverlay.translateRect(`object`.boundingBox)
+            graphicOverlay: GraphicOverlay, visionObject: FirebaseVisionObject): Boolean {
+        val boxRect = graphicOverlay.translateRect(visionObject.boundingBox)
         val reticleCenterX = graphicOverlay.width / 2f
         val reticleCenterY = graphicOverlay.height / 2f
         val reticleRect = RectF(
@@ -156,6 +149,6 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
 
     companion object {
 
-        private val TAG = "ProminentObjProcessor"
+        private const val TAG = "ProminentObjProcessor"
     }
 }
