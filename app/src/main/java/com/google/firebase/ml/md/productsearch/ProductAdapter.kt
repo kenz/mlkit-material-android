@@ -32,17 +32,10 @@ class ProductAdapter(private val productList: List<Product>) : Adapter<ProductVi
 
     class ProductViewHolder private constructor(view: View) : RecyclerView.ViewHolder(view) {
 
-        private val imageView: ImageView
-        private val titleView: TextView
-        private val subtitleView: TextView
-        private val imageSize: Int
-
-        init {
-            imageView = view.findViewById(R.id.product_image)
-            titleView = view.findViewById(R.id.product_title)
-            subtitleView = view.findViewById(R.id.product_subtitle)
-            imageSize = view.resources.getDimensionPixelOffset(R.dimen.product_item_image_size)
-        }
+        private val imageView: ImageView = view.findViewById(R.id.product_image)
+        private val titleView: TextView = view.findViewById(R.id.product_title)
+        private val subtitleView: TextView = view.findViewById(R.id.product_subtitle)
+        private val imageSize: Int = view.resources.getDimensionPixelOffset(R.dimen.product_item_image_size)
 
         fun bindProduct(product: Product) {
             imageView.setImageDrawable(null)
@@ -56,23 +49,19 @@ class ProductAdapter(private val productList: List<Product>) : Adapter<ProductVi
         }
 
         companion object {
-
-            fun create(parent: ViewGroup): ProductViewHolder {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.product_item, parent, false)
-                return ProductViewHolder(view)
-            }
+            fun create(parent: ViewGroup)
+                = ProductViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.product_item, parent, false))
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
-        return ProductViewHolder.create(parent)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder
+        = ProductViewHolder.create(parent)
+
 
     override fun onBindViewHolder(holder: ProductViewHolder, position: Int) {
         holder.bindProduct(productList[position])
     }
 
-    override fun getItemCount(): Int {
-        return productList.size
-    }
+    override fun getItemCount(): Int = productList.size
+
 }
