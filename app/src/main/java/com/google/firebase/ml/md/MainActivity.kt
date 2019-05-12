@@ -31,7 +31,7 @@ import androidx.recyclerview.widget.RecyclerView
 /** Entry activity to select the detection mode.  */
 class MainActivity : AppCompatActivity() {
 
-    private enum class DetectionMode private constructor(val titleResId: Int, val subtitleResId: Int) {
+    private enum class DetectionMode(val titleResId: Int, val subtitleResId: Int) {
         ODT_LIVE(R.string.mode_odt_live_title, R.string.mode_odt_live_subtitle),
         ODT_STATIC(R.string.mode_odt_static_title, R.string.mode_odt_static_subtitle),
         BARCODE_LIVE(R.string.mode_barcode_live_title, R.string.mode_barcode_live_subtitle)
@@ -42,11 +42,11 @@ class MainActivity : AppCompatActivity() {
 
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         setContentView(R.layout.activity_main)
-
-        val modeRecyclerView = findViewById<RecyclerView>(R.id.mode_recycler_view)
-        modeRecyclerView.setHasFixedSize(true)
-        modeRecyclerView.layoutManager = LinearLayoutManager(this)
-        modeRecyclerView.adapter = ModeItemAdapter(DetectionMode.values())
+        findViewById<RecyclerView>(R.id.mode_recycler_view).apply {
+            setHasFixedSize(true)
+            layoutManager = LinearLayoutManager(this@MainActivity)
+            adapter = ModeItemAdapter(DetectionMode.values())
+        }
     }
 
     override fun onResume() {
@@ -76,33 +76,25 @@ class MainActivity : AppCompatActivity() {
                             .inflate(R.layout.detection_mode_item, parent, false))
         }
 
-        override fun onBindViewHolder(modeItemViewHolder: ModeItemViewHolder, position: Int) {
-            modeItemViewHolder.bindDetectionMode(detectionModes[position])
-        }
+        override fun onBindViewHolder(modeItemViewHolder: ModeItemViewHolder, position: Int) = modeItemViewHolder.bindDetectionMode(detectionModes[position])
 
-        override fun getItemCount(): Int {
-            return detectionModes.size
-        }
+        override fun getItemCount(): Int = detectionModes.size
+
 
         private inner class ModeItemViewHolder internal constructor(view: View) : RecyclerView.ViewHolder(view) {
 
-            private val titleView: TextView
-            private val subtitleView: TextView
-
-            init {
-                titleView = view.findViewById(R.id.mode_title)
-                subtitleView = view.findViewById(R.id.mode_subtitle)
-            }
+            private val titleView: TextView = view.findViewById(R.id.mode_title)
+            private val subtitleView: TextView = view.findViewById(R.id.mode_subtitle)
 
             internal fun bindDetectionMode(detectionMode: DetectionMode) {
                 titleView.setText(detectionMode.titleResId)
                 subtitleView.setText(detectionMode.subtitleResId)
-                itemView.setOnClickListener { view ->
+                itemView.setOnClickListener {
                     val activity = this@MainActivity
                     when (detectionMode) {
-                        MainActivity.DetectionMode.ODT_LIVE -> activity.startActivity(Intent(activity, LiveObjectDetectionActivity::class.java))
-                        MainActivity.DetectionMode.ODT_STATIC -> Utils.openImagePicker(activity)
-                        MainActivity.DetectionMode.BARCODE_LIVE -> activity.startActivity(Intent(activity, LiveBarcodeScanningActivity::class.java))
+                        DetectionMode.ODT_LIVE -> activity.startActivity(Intent(activity, LiveObjectDetectionActivity::class.java))
+                        DetectionMode.ODT_STATIC -> Utils.openImagePicker(activity)
+                        DetectionMode.BARCODE_LIVE -> activity.startActivity(Intent(activity, LiveBarcodeScanningActivity::class.java))
                     }
                 }
             }
