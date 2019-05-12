@@ -26,7 +26,6 @@ import androidx.lifecycle.MutableLiveData
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcode
 import com.google.firebase.ml.md.objectdetection.DetectedObject
 import com.google.firebase.ml.md.productsearch.Product
-import com.google.firebase.ml.md.productsearch.SearchEngine.SearchResultListener
 import com.google.firebase.ml.md.productsearch.SearchedObject
 import com.google.firebase.ml.md.settings.PreferenceUtils
 import java.util.HashSet
