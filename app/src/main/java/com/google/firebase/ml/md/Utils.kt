@@ -22,7 +22,6 @@ import android.app.Activity
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
@@ -50,51 +49,44 @@ object Utils {
      * If the absolute difference between aspect ratios is less than this tolerance, they are
      * considered to be the same aspect ratio.
      */
-    val ASPECT_RATIO_TOLERANCE = 0.01f
+    const val ASPECT_RATIO_TOLERANCE = 0.01f
 
-    internal val REQUEST_CODE_PHOTO_LIBRARY = 1
+    internal const val REQUEST_CODE_PHOTO_LIBRARY = 1
 
-    private val TAG = "Utils"
+    private const val TAG = "Utils"
 
     internal fun requestRuntimePermissions(activity: Activity) {
-        val allNeededPermissions = ArrayList<String>()
-        for (permission in getRequiredPermissions(activity)) {
-            if (checkSelfPermission(activity, permission) != PackageManager.PERMISSION_GRANTED) {
-                allNeededPermissions.add(permission)
-            }
-        }
 
-        if (!allNeededPermissions.isEmpty()) {
+        val allNeededPermissions =
+                getRequiredPermissions(activity).filter {
+                    checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
+                }
+
+        if (allNeededPermissions.isNotEmpty()) {
             ActivityCompat.requestPermissions(
-                    activity, allNeededPermissions.toTypedArray<String>(), /* requestCode= */ 0)
+                    activity, allNeededPermissions.toTypedArray(), /* requestCode= */ 0)
         }
     }
 
-    internal fun allPermissionsGranted(context: Context): Boolean {
-        for (permission in getRequiredPermissions(context)) {
-            if (checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false
-            }
-        }
-        return true
-    }
+    internal fun allPermissionsGranted(context: Context): Boolean =
+            (getRequiredPermissions(context).firstOrNull {
+                checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
+            } == null)
+
 
     private fun getRequiredPermissions(context: Context): Array<String> {
-        try {
-            val info = context
-                    .packageManager
-                    .getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
+        return try {
+            val info = context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_PERMISSIONS)
             val ps = info.requestedPermissions
-            return if (ps != null && ps.size > 0) ps else arrayOf()
+            if (ps != null && ps.isNotEmpty()) ps else arrayOf()
         } catch (e: Exception) {
-            return arrayOf()
+            arrayOf()
         }
 
     }
 
-    fun isPortraitMode(context: Context): Boolean {
-        return context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-    }
+    fun isPortraitMode(context: Context): Boolean = context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+
 
     /**
      * Generates a list of acceptable preview sizes. Preview sizes are not acceptable if there is not
@@ -129,7 +121,7 @@ object Utils {
         // If there are no picture sizes with the same aspect ratio as any preview sizes, allow all of
         // the preview sizes and hope that the camera can handle it.  Probably unlikely, but we still
         // account for it.
-        if (validPreviewSizes.size == 0) {
+        if (validPreviewSizes.isEmpty()) {
             Log.w(TAG, "No preview sizes have a corresponding same-aspect-ratio picture size.")
             for (previewSize in supportedPreviewSizes) {
                 // The null picture size will let us know that we shouldn't set a picture size.
@@ -183,38 +175,30 @@ object Utils {
     }
 
     private fun maybeTransformBitmap(resolver: ContentResolver, uri: Uri, bitmap: Bitmap?): Bitmap? {
-        val orientation = getExifOrientationTag(resolver, uri)
-        var matrix: Matrix? = Matrix()
-        when (orientation) {
+        val matrix: Matrix? = when (getExifOrientationTag(resolver, uri)) {
             ExifInterface.ORIENTATION_UNDEFINED, ExifInterface.ORIENTATION_NORMAL ->
                 // Set the matrix to be null to skip the image transform.
-                matrix = null
-            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> {
-                matrix = Matrix()
-                matrix.postScale(-1.0f, 1.0f)
-            }
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix!!.postRotate(90f)
-            ExifInterface.ORIENTATION_TRANSPOSE -> {
-                matrix!!.postRotate(90.0f)
-                matrix.postScale(-1.0f, 1.0f)
-            }
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix!!.postRotate(180.0f)
-            ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix!!.postScale(1.0f, -1.0f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix!!.postRotate(-90.0f)
-            ExifInterface.ORIENTATION_TRANSVERSE -> {
-                matrix!!.postRotate(-90.0f)
-                matrix.postScale(-1.0f, 1.0f)
+                null
+            ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> Matrix().apply { postScale(-1.0f, 1.0f) }
+
+            ExifInterface.ORIENTATION_ROTATE_90 -> Matrix().apply { postRotate(90f) }
+            ExifInterface.ORIENTATION_TRANSPOSE -> Matrix().apply { postScale(-1.0f, 1.0f) }
+            ExifInterface.ORIENTATION_ROTATE_180 -> Matrix().apply { postRotate(180.0f) }
+            ExifInterface.ORIENTATION_FLIP_VERTICAL -> Matrix().apply { postScale(1.0f, -1.0f) }
+            ExifInterface.ORIENTATION_ROTATE_270 -> Matrix().apply { postRotate(-90.0f) }
+            ExifInterface.ORIENTATION_TRANSVERSE -> Matrix().apply {
+                postRotate(-90.0f)
+                postScale(-1.0f, 1.0f)
             }
             else ->
                 // Set the matrix to be null to skip the image transform.
-                matrix = null
+                null
         }
 
-        return if (matrix != null) {
+        return if (matrix != null)
             Bitmap.createBitmap(bitmap!!, 0, 0, bitmap.width, bitmap.height, matrix, true)
-        } else {
+        else
             bitmap
-        }
     }
 
     private fun getExifOrientationTag(resolver: ContentResolver, imageUri: Uri): Int {
@@ -224,11 +208,7 @@ object Utils {
 
         var exif: ExifInterface? = null
         try {
-            resolver.openInputStream(imageUri)!!.use { inputStream ->
-                if (inputStream != null) {
-                    exif = ExifInterface(inputStream!!)
-                }
-            }
+            resolver.openInputStream(imageUri)?.use { inputStream -> exif = ExifInterface(inputStream) }
         } catch (e: IOException) {
             Log.e(TAG, "Failed to open file to read rotation meta data: $imageUri", e)
         }
