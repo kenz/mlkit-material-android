@@ -31,26 +31,53 @@
       </intent-filter>
     </activity>
 
+
     <activity
-        android:name=".LiveObjectDetectionActivity"
+        android:name=".java.LiveObjectDetectionActivity"
         android:exported="false"
         android:screenOrientation="portrait">
     </activity>
 
     <activity
-        android:name=".LiveBarcodeScanningActivity"
+        android:name=".java.LiveBarcodeScanningActivity"
         android:exported="false"
         android:screenOrientation="portrait">
     </activity>
 
     <activity
-        android:name=".StaticObjectDetectionActivity"
+        android:name=".java.StaticObjectDetectionActivity"
         android:exported="false"
         android:screenOrientation="portrait">
     </activity>
 
     <activity
-        android:name=".settings.SettingsActivity"
+        android:name=".java.settings.SettingsActivity"
+        android:exported="false"
+        android:label="@string/settings_title"
+        android:screenOrientation="portrait"
+        android:theme="@style/Theme.AppCompat.Light">
+    </activity>
+
+    <activity
+        android:name=".kotlin.LiveObjectDetectionActivity"
+        android:exported="false"
+        android:screenOrientation="portrait">
+    </activity>
+
+    <activity
+        android:name=".kotlin.LiveBarcodeScanningActivity"
+        android:exported="false"
+        android:screenOrientation="portrait">
+    </activity>
+
+    <activity
+        android:name=".kotlin.StaticObjectDetectionActivity"
+        android:exported="false"
+        android:screenOrientation="portrait">
+    </activity>
+
+    <activity
+        android:name=".kotlin.settings.SettingsActivity"
         android:exported="false"
         android:label="@string/settings_title"
         android:screenOrientation="portrait"
