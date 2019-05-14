@@ -15,56 +15,63 @@
  */
 
 package com.google.firebase.ml.md.productsearch
-
-import android.content.Context
-import android.util.Log
-import com.android.volley.RequestQueue
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
-import com.google.android.gms.tasks.Tasks
 import com.google.firebase.ml.md.objectdetection.DetectedObject
-import java.util.ArrayList
-import java.util.concurrent.Callable
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import kotlinx.coroutines.*
 
 /** A fake search engine to help simulate the complete work flow.  */
-class SearchEngine(context: Context) {
+class SearchEngine() {
 
-    private val searchRequestQueue: RequestQueue = Volley.newRequestQueue(context)
-    private val requestCreationExecutor: ExecutorService = Executors.newSingleThreadExecutor()
 
-    fun search(detectedObject: DetectedObject, listener: (detectedObject:DetectedObject, productList:List<Product>)->Unit) {
+    var deferred:Deferred<List<Product>>? = null
+    @FlowPreview
+    suspend fun search(detectedObject: DetectedObject, listener: (detectedObject: DetectedObject, productList: List<Product>) -> Unit)
+            = GlobalScope.launch(Dispatchers.Main) {
         // Crops the object image out of the full image is expensive, so do it off the UI thread.
-        Tasks.call<JsonObjectRequest>(requestCreationExecutor, Callable{  createRequest(detectedObject)} )
-                .addOnSuccessListener { productRequest -> searchRequestQueue.add(productRequest.setTag(TAG)) }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Failed to create product search request!", e)
-                    // Remove the below dummy code after your own product search backed hooked up.
-                    val productList = ArrayList<Product>()
-                    for (i in 0..7) {
-                        productList.add(
-                                Product(/* imageUrl= */"", "Product title $i", "Product subtitle $i"))
-                    }
-                    listener.invoke(detectedObject, productList)
-                }
-    }
+        deferred = async(Dispatchers.Default){
+            when (val result = createRequest(detectedObject)) {
+                is Result.Success -> handleSuccess(result)
+                is Result.Failed -> handleFailed(result)
+            }
+
+        }
+        deferred?.
+            await()?.let{
+                listener.invoke(detectedObject, it)
+            }
+        }
+
 
     fun shutdown() {
-        searchRequestQueue.cancelAll(TAG)
-        requestCreationExecutor.shutdown()
+        deferred?.cancel()
     }
+
+    private fun handleSuccess(result: Result.Success):  List<Product>{
+        // add process if you need.
+        return result.value
+    }
+
+    private fun handleFailed(result: Result.Failed): List<Product>{
+        // create dummy data.
+        return arrayOf(0..7).map{ Product("", "Product title $it", "Product subtitle $it") }
+    }
+
+    @Throws(Exception::class)
+    fun createRequest(searchingObject: DetectedObject): Result {
+        val objectImageData = searchingObject.imageData
+                ?: return Result.Failed(Exception("Failed to get object image data!"))
+
+        // Hooks up with your own product search backend here.
+        return Result.Failed(Exception("Hooks up with your own product search backend."))
+    }
+
 
     companion object {
         private const val TAG = "SearchEngine"
-
-        @Throws(Exception::class)
-        private fun createRequest(searchingObject: DetectedObject): JsonObjectRequest {
-            val objectImageData = searchingObject.imageData
-                    ?: throw Exception("Failed to get object image data!")
-
-            // Hooks up with your own product search backend here.
-            throw Exception("Hooks up with your own product search backend.")
-        }
     }
+}
+
+sealed class Result {
+    class Success(val value: List<Product>) : Result()
+
+    class Failed(val exception: java.lang.Exception) : Result()
 }

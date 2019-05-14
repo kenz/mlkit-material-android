@@ -79,7 +79,7 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        searchEngine = SearchEngine(applicationContext)
+        searchEngine = SearchEngine()
 
         setContentView(R.layout.activity_live_object)
         preview = findViewById(R.id.camera_preview)

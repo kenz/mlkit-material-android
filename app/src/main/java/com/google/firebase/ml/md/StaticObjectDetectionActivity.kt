@@ -85,7 +85,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        searchEngine = SearchEngine(applicationContext)
+        searchEngine = SearchEngine()
 
         setContentView(R.layout.activity_static_object)
 
