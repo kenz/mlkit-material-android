@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.google.firebase.ml.md;
+package com.google.firebase.ml.md.java;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -30,9 +30,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.ml.md.java.LiveObjectDetectionActivity;
-import com.google.firebase.ml.md.java.StaticObjectDetectionActivity;
-import com.google.firebase.ml.md.java.Utils;
+import com.google.firebase.ml.md.R;
 
 /** Entry activity to select the detection mode. */
 public class MainActivity extends AppCompatActivity {

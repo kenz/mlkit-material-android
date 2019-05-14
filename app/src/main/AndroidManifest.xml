@@ -22,7 +22,7 @@
         android:value="@integer/google_play_services_version"/>
 
     <activity
-        android:name=".MainActivity"
+        android:name=".EntryChoiceActivity"
         android:exported="true"
         android:screenOrientation="portrait">
       <intent-filter>
@@ -31,6 +31,11 @@
       </intent-filter>
     </activity>
 
+    <activity
+        android:name=".java.MainActivity"
+        android:exported="false"
+        android:screenOrientation="portrait">
+    </activity>
 
     <activity
         android:name=".java.LiveObjectDetectionActivity"
@@ -56,6 +61,12 @@
         android:label="@string/settings_title"
         android:screenOrientation="portrait"
         android:theme="@style/Theme.AppCompat.Light">
+    </activity>
+
+    <activity
+        android:name=".kotlin.MainActivity"
+        android:exported="false"
+        android:screenOrientation="portrait">
     </activity>
 
     <activity
