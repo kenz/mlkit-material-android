@@ -45,7 +45,6 @@ class BottomSheetScrimView(context: Context, attrs: AttributeSet) : View(context
     private var downPercentInCollapsed: Float = 0f
 
     init {
-
         val resources = context.resources
         scrimPaint = Paint().apply {
             color = ContextCompat.getColor(context, R.color.dark)
@@ -69,7 +68,8 @@ class BottomSheetScrimView(context: Context, attrs: AttributeSet) : View(context
      * keeping thumbnail size fixed.
      */
     fun updateWithThumbnailTranslate(
-            thumbnailBitmap: Bitmap, collapsedStateHeight: Int, slideOffset: Float, bottomSheet: View) {
+            thumbnailBitmap: Bitmap, collapsedStateHeight: Int, slideOffset: Float, bottomSheet: View
+    ) {
         this.thumbnailBitmap = thumbnailBitmap
 
         val currentSheetHeight: Float
@@ -100,10 +100,12 @@ class BottomSheetScrimView(context: Context, attrs: AttributeSet) : View(context
      * It's only used by sliding the sheet up from hidden state to collapsed state.
      */
     fun updateWithThumbnailTranslateAndScale(
-            thumbnailBitmap: Bitmap, collapsedStateHeight: Int, slideOffset: Float, srcThumbnailRect: RectF) {
+            thumbnailBitmap: Bitmap, collapsedStateHeight: Int, slideOffset: Float, srcThumbnailRect: RectF
+    ) {
         checkArgument(
                 slideOffset <= 0,
-                "Scale mode works only when the sheet is between hidden and collapsed states.")
+                "Scale mode works only when the sheet is between hidden and collapsed states."
+        )
 
         this.thumbnailBitmap = thumbnailBitmap
         this.downPercentInCollapsed = 0f
@@ -146,7 +148,6 @@ class BottomSheetScrimView(context: Context, attrs: AttributeSet) : View(context
     }
 
     companion object {
-
         private const val DOWN_PERCENT_TO_HIDE_THUMBNAIL = 0.42f
     }
 }

@@ -37,7 +37,8 @@ internal class ObjectDotGraphic(overlay: GraphicOverlay, detectedObject: Detecte
         val box = detectedObject.boundingBox
         center = PointF(
                 overlay.translateX((box.left + box.right) / 2f),
-                overlay.translateY((box.top + box.bottom) / 2f))
+                overlay.translateY((box.top + box.bottom) / 2f)
+        )
 
         paint = Paint().apply {
             style = Style.FILL

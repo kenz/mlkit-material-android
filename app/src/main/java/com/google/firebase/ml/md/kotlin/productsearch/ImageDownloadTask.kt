@@ -29,7 +29,6 @@ import java.net.URL
 /** Async task to download the image and then feed into the provided image view.  */
 internal class ImageDownloadTask(private val imageView: ImageView, private val maxImageWidth: Int) : AsyncTask<String, Void, Bitmap>() {
 
-
     override fun doInBackground(vararg urls: String): Bitmap? {
         if (TextUtils.isEmpty(urls[0])) {
             return null

@@ -37,21 +37,22 @@ class StaticObjectDotView @JvmOverloads constructor(context: Context, selected: 
     private var currentRadiusOffset: Float = 0.toFloat()
 
     init {
-
         val selectedDotRadius = context.resources.getDimensionPixelOffset(R.dimen.static_image_dot_radius_selected)
         radiusOffsetRange = selectedDotRadius - unselectedDotRadius
         currentRadiusOffset = (if (selected) radiusOffsetRange else 0).toFloat()
     }
 
     fun playAnimationWithSelectedState(selected: Boolean) {
-        val radiusOffsetAnimator: ValueAnimator = if (selected)
-            ValueAnimator.ofFloat(0f, radiusOffsetRange.toFloat())
-                    .setDuration(DOT_SELECTION_ANIMATOR_DURATION_MS).apply {
-                        startDelay = DOT_DESELECTION_ANIMATOR_DURATION_MS
-                    }
-        else
-            ValueAnimator.ofFloat(radiusOffsetRange.toFloat(), 0f)
-                    .setDuration(DOT_DESELECTION_ANIMATOR_DURATION_MS)
+        val radiusOffsetAnimator: ValueAnimator =
+                if (selected) {
+                    ValueAnimator.ofFloat(0f, radiusOffsetRange.toFloat())
+                            .setDuration(DOT_SELECTION_ANIMATOR_DURATION_MS).apply {
+                                startDelay = DOT_DESELECTION_ANIMATOR_DURATION_MS
+                            }
+                } else {
+                    ValueAnimator.ofFloat(radiusOffsetRange.toFloat(), 0f)
+                            .setDuration(DOT_DESELECTION_ANIMATOR_DURATION_MS)
+                }
 
         radiusOffsetAnimator.interpolator = FastOutSlowInInterpolator()
         radiusOffsetAnimator.addUpdateListener { animation ->
@@ -63,7 +64,6 @@ class StaticObjectDotView @JvmOverloads constructor(context: Context, selected: 
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-
         val cx = width / 2f
         val cy = height / 2f
         paint.color = Color.WHITE
@@ -71,7 +71,6 @@ class StaticObjectDotView @JvmOverloads constructor(context: Context, selected: 
     }
 
     companion object {
-
         private const val DOT_SELECTION_ANIMATOR_DURATION_MS: Long = 116
         private const val DOT_DESELECTION_ANIMATOR_DURATION_MS: Long = 67
     }

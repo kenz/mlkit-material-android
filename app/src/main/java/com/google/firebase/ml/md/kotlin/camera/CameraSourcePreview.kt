@@ -66,7 +66,6 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(c
         if (startRequested && surfaceAvailable) {
             cameraSource?.start(surfaceView.holder)
             requestLayout()
-
             graphicOverlay?.let { overlay ->
                 cameraSource?.let {
                     overlay.setCameraInfo(it)
@@ -129,7 +128,8 @@ class CameraSourcePreview(context: Context, attrs: AttributeSet) : FrameLayout(c
             surfaceAvailable = false
         }
 
-        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+        }
     }
 
     companion object {

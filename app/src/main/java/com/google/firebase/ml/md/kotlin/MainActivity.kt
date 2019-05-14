@@ -74,7 +74,9 @@ class MainActivity : AppCompatActivity() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ModeItemViewHolder {
             return ModeItemViewHolder(
                     LayoutInflater.from(parent.context)
-                            .inflate(R.layout.detection_mode_item, parent, false))
+                            .inflate(R.layout.detection_mode_item, parent, false
+                            )
+            )
         }
 
         override fun onBindViewHolder(modeItemViewHolder: ModeItemViewHolder, position: Int) = modeItemViewHolder.bindDetectionMode(detectionModes[position])

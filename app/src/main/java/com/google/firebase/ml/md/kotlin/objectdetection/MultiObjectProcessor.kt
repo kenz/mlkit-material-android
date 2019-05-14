@@ -46,10 +46,9 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
             .getDimensionPixelOffset(R.dimen.object_selection_distance_threshold)
     private val detector: FirebaseVisionObjectDetector
     // Each new tracked object plays appearing animation exactly once.
-    private val objectDotAnimatorArray= SparseArray<ObjectDotAnimator>()
+    private val objectDotAnimatorArray = SparseArray<ObjectDotAnimator>()
 
     init {
-
         val optionsBuilder = FirebaseVisionObjectDetectorOptions.Builder()
                 .setDetectorMode(FirebaseVisionObjectDetectorOptions.STREAM_MODE)
                 .enableMultipleObjects()
@@ -114,16 +113,18 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
                     continue
                 }
 
-                val trackingId = result.trackingId?:return
-                val objectDotAnimator = objectDotAnimatorArray.get(trackingId)?:let{
-                    ObjectDotAnimator(graphicOverlay).apply{
+                val trackingId = result.trackingId ?: return
+                val objectDotAnimator = objectDotAnimatorArray.get(trackingId) ?: let {
+                    ObjectDotAnimator(graphicOverlay).apply {
                         start()
                         objectDotAnimatorArray[trackingId] = this
                     }
                 }
                 graphicOverlay.add(
                         ObjectDotGraphic(
-                                graphicOverlay, DetectedObject(result, i, image), objectDotAnimator))
+                                graphicOverlay, DetectedObject(result, i, image), objectDotAnimator
+                        )
+                )
             }
         }
 
@@ -141,10 +142,12 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
             workflowModel.confirmingObject(selectedObject, confirmationController.progress)
         } else {
             workflowModel.setWorkflowState(
-                    if (objects.isEmpty())
+                    if (objects.isEmpty()) {
                         WorkflowModel.WorkflowState.DETECTING
-                    else
-                        WorkflowModel.WorkflowState.DETECTED)
+                    } else {
+                        WorkflowModel.WorkflowState.DETECTED
+                    }
+            )
         }
     }
 
@@ -158,7 +161,7 @@ class MultiObjectProcessor(graphicOverlay: GraphicOverlay, private val workflowM
                 removedTrackingIds.add(key)
             }
         }
-        removedTrackingIds.forEach{
+        removedTrackingIds.forEach {
             objectDotAnimatorArray.remove(it)
         }
     }

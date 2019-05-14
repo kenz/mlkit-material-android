@@ -50,14 +50,14 @@ class ObjectConfirmationGraphic internal constructor(
             color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_fill)
         }
 
-        outerRingStrokePaint = Paint().apply{
+        outerRingStrokePaint = Paint().apply {
             style = Style.STROKE
             strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
             strokeCap = Cap.ROUND
             color = ContextCompat.getColor(context, R.color.object_reticle_outer_ring_stroke)
         }
 
-        progressRingStrokePaint = Paint().apply{
+        progressRingStrokePaint = Paint().apply {
             style = Style.STROKE
             strokeWidth = resources.getDimensionPixelOffset(R.dimen.object_reticle_outer_ring_stroke_width).toFloat()
             strokeCap = Cap.ROUND
@@ -80,7 +80,7 @@ class ObjectConfirmationGraphic internal constructor(
         innerRingStrokeRadius = resources.getDimensionPixelOffset(R.dimen.object_reticle_inner_ring_stroke_radius)
     }
 
-    public override fun draw(canvas: Canvas) {
+    override fun draw(canvas: Canvas) {
         val cx = canvas.width / 2f
         val cy = canvas.height / 2f
         canvas.drawCircle(cx, cy, outerRingFillRadius.toFloat(), outerRingFillPaint)
@@ -91,13 +91,15 @@ class ObjectConfirmationGraphic internal constructor(
                 cx - outerRingStrokeRadius,
                 cy - outerRingStrokeRadius,
                 cx + outerRingStrokeRadius,
-                cy + outerRingStrokeRadius)
+                cy + outerRingStrokeRadius
+        )
         val sweepAngle = confirmationController.progress * 360
         canvas.drawArc(
                 progressRect,
                 /* startAngle= */ 0f,
                 sweepAngle,
                 /* useCenter= */ false,
-                progressRingStrokePaint)
+                progressRingStrokePaint
+        )
     }
 }

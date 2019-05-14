@@ -88,23 +88,18 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
             setOnClickListener(this@LiveObjectDetectionActivity)
             cameraSource = CameraSource(this)
         }
-
         promptChip = findViewById(R.id.bottom_prompt_chip)
         promptChipAnimator = (AnimatorInflater.loadAnimator(this, R.animator.bottom_prompt_chip_enter) as AnimatorSet).apply {
             setTarget(promptChip)
         }
-
         searchButton = findViewById<ExtendedFloatingActionButton>(R.id.product_search_button).apply {
             setOnClickListener(this@LiveObjectDetectionActivity)
         }
         searchButtonAnimator = (AnimatorInflater.loadAnimator(this, R.animator.search_button_enter) as AnimatorSet).apply {
             setTarget(searchButton)
         }
-
         searchProgressBar = findViewById(R.id.search_progress_bar)
-
         setUpBottomSheet()
-
         findViewById<View>(R.id.close_button).setOnClickListener(this)
         flashButton = findViewById<View>(R.id.flash_button).apply {
             setOnClickListener(this@LiveObjectDetectionActivity)
@@ -112,7 +107,6 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
         settingsButton = findViewById<View>(R.id.settings_button).apply {
             setOnClickListener(this@LiveObjectDetectionActivity)
         }
-
         setUpWorkflowModel()
     }
 
@@ -124,10 +118,12 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
         bottomSheetBehavior?.state = BottomSheetBehavior.STATE_HIDDEN
         currentWorkflowState = WorkflowState.NOT_STARTED
         cameraSource?.setFrameProcessor(
-                if (PreferenceUtils.isMultipleObjectsMode(this))
+                if (PreferenceUtils.isMultipleObjectsMode(this)) {
                     MultiObjectProcessor(graphicOverlay!!, workflowModel!!)
-                else
-                    ProminentObjectProcessor(graphicOverlay!!, workflowModel!!))
+                } else {
+                    ProminentObjectProcessor(graphicOverlay!!, workflowModel!!)
+                }
+        )
         workflowModel?.setWorkflowState(WorkflowState.DETECTING)
     }
 
@@ -263,44 +259,39 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
 
             // Observes the workflow state changes, if happens, update the overlay view indicators and
             // camera preview state.
-            workflowState.observe(
-                    this@LiveObjectDetectionActivity,
-                    Observer { workflowState ->
-                        if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
-                            return@Observer
-                        }
+            workflowState.observe(this@LiveObjectDetectionActivity, Observer { workflowState ->
+                if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
+                    return@Observer
+                }
+                currentWorkflowState = workflowState
+                Log.d(TAG, "Current workflow state: " + workflowState.name)
 
-                        currentWorkflowState = workflowState
-                        Log.d(TAG, "Current workflow state: " + workflowState.name)
-
-                        if (PreferenceUtils.isAutoSearchEnabled(this@LiveObjectDetectionActivity)) {
-                            stateChangeInAutoSearchMode(workflowState)
-                        } else {
-                            stateChangeInManualSearchMode(workflowState)
-                        }
-                    })
+                if (PreferenceUtils.isAutoSearchEnabled(this@LiveObjectDetectionActivity)) {
+                    stateChangeInAutoSearchMode(workflowState)
+                } else {
+                    stateChangeInManualSearchMode(workflowState)
+                }
+            })
 
             // Observes changes on the object to search, if happens, fire product search request.
-            objectToSearch.observe(
-                    this@LiveObjectDetectionActivity, Observer { detectObject -> searchEngine!!.search(detectObject) { detectedObject, products -> workflowModel?.onSearchCompleted(detectedObject, products) } })
+            objectToSearch.observe(this@LiveObjectDetectionActivity, Observer { detectObject ->
+                searchEngine!!.search(detectObject) { detectedObject, products -> workflowModel?.onSearchCompleted(detectedObject, products) }
+            })
 
             // Observes changes on the object that has search completed, if happens, show the bottom sheet
             // to present search result.
-            searchedObject.observe(
-                    this@LiveObjectDetectionActivity,
-                    Observer { nullableSearchedObject ->
-                        val searchedObject = nullableSearchedObject ?: return@Observer
-                        val productList = searchedObject.productList
-                        objectThumbnailForBottomSheet = searchedObject.getObjectThumbnail()
-                        bottomSheetTitleView?.text = resources
-                                .getQuantityString(
-                                        R.plurals.bottom_sheet_title, productList.size, productList.size)
-                        productRecyclerView?.adapter = ProductAdapter(productList)
-                        slidingSheetUpFromHiddenState = true
-                        bottomSheetBehavior?.peekHeight = preview?.height ?: 0 / 2
-                        bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
-
-                    })
+            searchedObject.observe(this@LiveObjectDetectionActivity, Observer { nullableSearchedObject ->
+                val searchedObject = nullableSearchedObject ?: return@Observer
+                val productList = searchedObject.productList
+                objectThumbnailForBottomSheet = searchedObject.getObjectThumbnail()
+                bottomSheetTitleView?.text = resources
+                        .getQuantityString(
+                                R.plurals.bottom_sheet_title, productList.size, productList.size)
+                productRecyclerView?.adapter = ProductAdapter(productList)
+                slidingSheetUpFromHiddenState = true
+                bottomSheetBehavior?.peekHeight = preview?.height ?: 0 / 2
+                bottomSheetBehavior?.state = BottomSheetBehavior.STATE_COLLAPSED
+            })
         }
     }
 
@@ -382,12 +373,12 @@ class LiveObjectDetectionActivity : AppCompatActivity(), OnClickListener {
         }
 
         val shouldPlayPromptChipEnteringAnimation = wasPromptChipGone && promptChip?.visibility == View.VISIBLE
-        promptChipAnimator?.let{
+        promptChipAnimator?.let {
             if (shouldPlayPromptChipEnteringAnimation && !it.isRunning) it.start()
         }
 
         val shouldPlaySearchButtonEnteringAnimation = wasSearchButtonGone && searchButton?.visibility == View.VISIBLE
-        searchButtonAnimator?.let{
+        searchButtonAnimator?.let {
             if (shouldPlaySearchButtonEnteringAnimation && !it.isRunning) it.start()
         }
     }

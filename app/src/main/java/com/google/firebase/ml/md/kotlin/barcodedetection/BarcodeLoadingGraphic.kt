@@ -25,8 +25,18 @@ import com.google.firebase.ml.md.kotlin.camera.GraphicOverlay
 
 /** Draws the graphic to indicate the barcode result is in loading.  */
 internal class BarcodeLoadingGraphic(overlay: GraphicOverlay, private val loadingAnimator: ValueAnimator) : BarcodeGraphicBase(overlay) {
-    private val boxClockwiseCoordinates: Array<PointF> = arrayOf(PointF(boxRect.left, boxRect.top), PointF(boxRect.right, boxRect.top), PointF(boxRect.right, boxRect.bottom), PointF(boxRect.left, boxRect.bottom))
-    private val coordinateOffsetBits: Array<Point> = arrayOf(Point(1, 0), Point(0, 1), Point(-1, 0), Point(0, -1))
+    private val boxClockwiseCoordinates: Array<PointF> = arrayOf(
+            PointF(boxRect.left, boxRect.top),
+            PointF(boxRect.right, boxRect.top),
+            PointF(boxRect.right, boxRect.bottom),
+            PointF(boxRect.left, boxRect.bottom)
+    )
+    private val coordinateOffsetBits: Array<Point> = arrayOf(
+            Point(1, 0),
+            Point(0, 1),
+            Point(-1, 0),
+            Point(0, -1)
+    )
     private val lastPathPoint = PointF()
 
     override fun draw(canvas: Canvas) {
@@ -60,7 +70,8 @@ internal class BarcodeLoadingGraphic(overlay: GraphicOverlay, private val loadin
             if (lineLen >= pathLen) {
                 path.lineTo(
                         lastPathPoint.x + pathLen * coordinateOffsetBits[index].x,
-                        lastPathPoint.y + pathLen * coordinateOffsetBits[index].y)
+                        lastPathPoint.y + pathLen * coordinateOffsetBits[index].y
+                )
                 break
             }
 

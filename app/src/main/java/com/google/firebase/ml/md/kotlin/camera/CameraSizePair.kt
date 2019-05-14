@@ -31,7 +31,7 @@ class CameraSizePair {
 
     constructor(previewSize: Camera.Size, pictureSize: Camera.Size?) {
         preview = Size(previewSize.width, previewSize.height)
-        picture = pictureSize?.let{Size(it.width, it.height)}
+        picture = pictureSize?.let { Size(it.width, it.height) }
     }
 
     constructor(previewSize: Size, pictureSize: Size?) {

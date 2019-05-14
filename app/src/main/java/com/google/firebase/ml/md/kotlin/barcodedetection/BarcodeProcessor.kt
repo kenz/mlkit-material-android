@@ -44,9 +44,8 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
             image: FirebaseVisionImage,
             results: List<FirebaseVisionBarcode>,
             graphicOverlay: GraphicOverlay) {
-        if (!workflowModel.isCameraLive) {
-            return
-        }
+
+        if (!workflowModel.isCameraLive) return
 
         Log.d(TAG, "Barcode result size: " + results.size)
 
@@ -63,7 +62,6 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
             cameraReticleAnimator.start()
             graphicOverlay.add(BarcodeReticleGraphic(graphicOverlay, cameraReticleAnimator))
             workflowModel.setWorkflowState(WorkflowState.DETECTING)
-
         } else {
             cameraReticleAnimator.cancel()
             val sizeProgress = PreferenceUtils.getProgressToMeetBarcodeSizeRequirement(graphicOverlay, barcodeInCenter)
@@ -71,7 +69,6 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
                 // Barcode in the camera view is too small, so prompt user to move camera closer.
                 graphicOverlay.add(BarcodeConfirmingGraphic(graphicOverlay, barcodeInCenter))
                 workflowModel.setWorkflowState(WorkflowState.CONFIRMING)
-
             } else {
                 // Barcode size in the camera view is sufficient.
                 if (PreferenceUtils.shouldDelayLoadingBarcodeResult(graphicOverlay.context)) {
@@ -79,7 +76,6 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
                     loadingAnimator.start()
                     graphicOverlay.add(BarcodeLoadingGraphic(graphicOverlay, loadingAnimator))
                     workflowModel.setWorkflowState(WorkflowState.SEARCHING)
-
                 } else {
                     workflowModel.setWorkflowState(WorkflowState.DETECTED)
                     workflowModel.detectedBarcode.setValue(barcodeInCenter)
@@ -89,8 +85,7 @@ class BarcodeProcessor(graphicOverlay: GraphicOverlay, private val workflowModel
         graphicOverlay.invalidate()
     }
 
-    private fun createLoadingAnimator(
-            graphicOverlay: GraphicOverlay, barcode: FirebaseVisionBarcode): ValueAnimator {
+    private fun createLoadingAnimator(graphicOverlay: GraphicOverlay, barcode: FirebaseVisionBarcode): ValueAnimator {
         val endProgress = 1.1f
         return ValueAnimator.ofFloat(0f, endProgress).apply {
             duration = 2000

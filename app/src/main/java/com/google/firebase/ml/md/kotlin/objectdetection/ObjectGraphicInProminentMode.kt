@@ -49,7 +49,6 @@ internal class ObjectGraphicInProminentMode(
     private val boxCornerRadius: Int
 
     init {
-
         // Sets up a gradient background color at vertical.
         scrimPaint.shader = if (confirmationController.isConfirmed) {
             LinearGradient(
@@ -59,7 +58,8 @@ internal class ObjectGraphicInProminentMode(
                     overlay.height.toFloat(),
                     ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_start),
                     ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_end),
-                    TileMode.CLAMP)
+                    TileMode.CLAMP
+            )
         } else {
             LinearGradient(
                     0f,
@@ -68,7 +68,8 @@ internal class ObjectGraphicInProminentMode(
                     overlay.height.toFloat(),
                     ContextCompat.getColor(context, R.color.object_detected_bg_gradient_start),
                     ContextCompat.getColor(context, R.color.object_detected_bg_gradient_end),
-                    TileMode.CLAMP)
+                    TileMode.CLAMP
+            )
         }
 
         eraserPaint = Paint().apply {
@@ -80,10 +81,12 @@ internal class ObjectGraphicInProminentMode(
             strokeWidth = context
                     .resources
                     .getDimensionPixelOffset(
-                            if (confirmationController.isConfirmed)
+                            if (confirmationController.isConfirmed) {
                                 R.dimen.bounding_box_confirmed_stroke_width
-                            else
-                                R.dimen.bounding_box_stroke_width).toFloat()
+                            } else {
+                                R.dimen.bounding_box_stroke_width
+                            }
+                    ).toFloat()
             color = Color.WHITE
         }
 
@@ -100,9 +103,9 @@ internal class ObjectGraphicInProminentMode(
         canvas.drawRoundRect(rect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), eraserPaint)
 
         // Draws the bounding box with a gradient border color at vertical.
-        boxPaint.shader = if (confirmationController.isConfirmed)
+        boxPaint.shader = if (confirmationController.isConfirmed) {
             null
-        else
+        } else {
             LinearGradient(
                     rect.left,
                     rect.top,
@@ -111,6 +114,7 @@ internal class ObjectGraphicInProminentMode(
                     boxGradientStartColor,
                     boxGradientEndColor,
                     TileMode.CLAMP)
+        }
         canvas.drawRoundRect(rect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), boxPaint)
     }
 }

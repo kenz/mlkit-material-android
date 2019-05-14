@@ -33,88 +33,89 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.ml.md.java.Utils;
 
-/** Entry activity to select the detection mode. */
+/**
+ * Entry activity to select the detection mode.
+ */
 public class EntryChoiceActivity extends AppCompatActivity {
 
-  private enum EntryMode {
-    ENTRY_JAVA(R.string.entry_java_title, R.string.entry_java_subtitle),
-    ENTRY_KOTLIN(R.string.entry_kotlin_title, R.string.entry_kotlin_subtitle);
+    private enum EntryMode {
+        ENTRY_JAVA(R.string.entry_java_title, R.string.entry_java_subtitle),
+        ENTRY_KOTLIN(R.string.entry_kotlin_title, R.string.entry_kotlin_subtitle);
 
-    private final int titleResId;
-    private final int subtitleResId;
+        private final int titleResId;
+        private final int subtitleResId;
 
-    EntryMode(int titleResId, int subtitleResId) {
-      this.titleResId = titleResId;
-      this.subtitleResId = subtitleResId;
-    }
-  }
-
-  @Override
-  protected void onCreate(@Nullable Bundle bundle) {
-    super.onCreate(bundle);
-
-    AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-    setContentView(R.layout.activity_entity_choice);
-
-    RecyclerView modeRecyclerView = findViewById(R.id.entity_recycler_view);
-    modeRecyclerView.setHasFixedSize(true);
-    modeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-    modeRecyclerView.setAdapter(new EntryItemAdapter(EntryMode.values()));
-  }
-
-  private class EntryItemAdapter extends RecyclerView.Adapter<EntryItemAdapter.EntryItemViewHolder> {
-
-    private final EntryMode[] entryModes;
-
-    EntryItemAdapter(EntryMode[] entryModes) {
-      this.entryModes = entryModes;
-    }
-
-    @NonNull
-    @Override
-    public EntryItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      return new EntryItemViewHolder(
-          LayoutInflater.from(parent.getContext())
-              .inflate(R.layout.entry_item, parent, false));
+        EntryMode(int titleResId, int subtitleResId) {
+            this.titleResId = titleResId;
+            this.subtitleResId = subtitleResId;
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull EntryItemViewHolder modeItemViewHolder, int position) {
-      modeItemViewHolder.bindDetectionMode(entryModes[position]);
+    protected void onCreate(@Nullable Bundle bundle) {
+        super.onCreate(bundle);
+
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        setContentView(R.layout.activity_entity_choice);
+
+        RecyclerView modeRecyclerView = findViewById(R.id.entity_recycler_view);
+        modeRecyclerView.setHasFixedSize(true);
+        modeRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        modeRecyclerView.setAdapter(new EntryItemAdapter(EntryMode.values()));
     }
 
-    @Override
-    public int getItemCount() {
-      return entryModes.length;
+    private class EntryItemAdapter extends RecyclerView.Adapter<EntryItemAdapter.EntryItemViewHolder> {
+
+        private final EntryMode[] entryModes;
+
+        EntryItemAdapter(EntryMode[] entryModes) {
+            this.entryModes = entryModes;
+        }
+
+        @NonNull
+        @Override
+        public EntryItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new EntryItemViewHolder(
+                    LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.entry_item, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull EntryItemViewHolder modeItemViewHolder, int position) {
+            modeItemViewHolder.bindDetectionMode(entryModes[position]);
+        }
+
+        @Override
+        public int getItemCount() {
+            return entryModes.length;
+        }
+
+        private class EntryItemViewHolder extends RecyclerView.ViewHolder {
+
+            private final TextView titleView;
+            private final TextView subtitleView;
+
+            EntryItemViewHolder(@NonNull View view) {
+                super(view);
+                titleView = view.findViewById(R.id.entry_title);
+                subtitleView = view.findViewById(R.id.entry_subtitle);
+            }
+
+            void bindDetectionMode(EntryMode entryMode) {
+                titleView.setText(entryMode.titleResId);
+                subtitleView.setText(entryMode.subtitleResId);
+                itemView.setOnClickListener(view -> {
+                    Activity activity = EntryChoiceActivity.this;
+                    switch (entryMode) {
+                        case ENTRY_JAVA:
+                            activity.startActivity(new Intent(activity, com.google.firebase.ml.md.java.MainActivity.class));
+                            break;
+                        case ENTRY_KOTLIN:
+                            activity.startActivity(new Intent(activity, com.google.firebase.ml.md.kotlin.MainActivity.class));
+                            break;
+                    }
+                });
+            }
+        }
     }
-
-    private class EntryItemViewHolder extends RecyclerView.ViewHolder {
-
-      private final TextView titleView;
-      private final TextView subtitleView;
-
-      EntryItemViewHolder(@NonNull View view) {
-        super(view);
-        titleView = view.findViewById(R.id.entry_title);
-        subtitleView = view.findViewById(R.id.entry_subtitle);
-      }
-
-      void bindDetectionMode(EntryMode entryMode) {
-        titleView.setText(entryMode.titleResId);
-        subtitleView.setText(entryMode.subtitleResId);
-        itemView.setOnClickListener(
-            view -> {
-              Activity activity = EntryChoiceActivity.this;
-              switch (entryMode) {
-                case ENTRY_JAVA:
-                  activity.startActivity(new Intent(activity, com.google.firebase.ml.md.java.MainActivity.class));
-                  break;
-                case ENTRY_KOTLIN:
-                  activity.startActivity(new Intent(activity, com.google.firebase.ml.md.kotlin.MainActivity.class));
-                  break;
-              }
-            });
-      }
-    }
-  }
 }

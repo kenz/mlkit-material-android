@@ -116,7 +116,8 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
                         FirebaseVisionObjectDetectorOptions.Builder()
                                 .setDetectorMode(FirebaseVisionObjectDetectorOptions.SINGLE_IMAGE_MODE)
                                 .enableMultipleObjects()
-                                .build())
+                                .build()
+                )
         intent.data?.let { detectObjects(it) }
     }
 
@@ -132,8 +133,7 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (requestCode == Utils.REQUEST_CODE_PHOTO_LIBRARY
-                && resultCode == Activity.RESULT_OK) {
+        if (requestCode == Utils.REQUEST_CODE_PHOTO_LIBRARY && resultCode == Activity.RESULT_OK) {
             data?.data?.let {
                 detectObjects(it)
             }
@@ -194,7 +194,8 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
                                     slideOffset,
                                     bottomSheet)
                         }
-                    })
+                    }
+            )
             state = BottomSheetBehavior.STATE_HIDDEN
         }
 
@@ -305,8 +306,8 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
         val viewCoordinateScale: Float
         val horizontalGap: Float
         val verticalGap: Float
-        val inputImageView = inputImageView?:throw NullPointerException()
-        val inputBitmap= inputBitmap?:throw NullPointerException()
+        val inputImageView = inputImageView ?: throw NullPointerException()
+        val inputBitmap = inputBitmap ?: throw NullPointerException()
         val inputImageViewRatio = inputImageView.width.toFloat() / inputImageView.height
         val inputBitmapRatio = inputBitmap.width.toFloat() / inputBitmap.height
         if (inputBitmapRatio <= inputImageViewRatio) { // Image content fills height
@@ -324,7 +325,8 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
                 boundingBox.left * viewCoordinateScale + horizontalGap,
                 boundingBox.top * viewCoordinateScale + verticalGap,
                 boundingBox.right * viewCoordinateScale + horizontalGap,
-                boundingBox.bottom * viewCoordinateScale + verticalGap)
+                boundingBox.bottom * viewCoordinateScale + verticalGap
+        )
         val initialSelected = searchedObject.objectIndex == 0
         val dotView = StaticObjectDotView(this, initialSelected)
         val layoutParams = FrameLayout.LayoutParams(dotViewSize, dotViewSize)
@@ -332,7 +334,11 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
                 (boxInViewCoordinate.right + boxInViewCoordinate.left) / 2,
                 (boxInViewCoordinate.bottom + boxInViewCoordinate.top) / 2)
         layoutParams.setMargins(
-                (dotCenter.x - dotViewSize / 2f).toInt(), (dotCenter.y - dotViewSize / 2f).toInt(), 0, 0)
+                (dotCenter.x - dotViewSize / 2f).toInt(),
+                (dotCenter.y - dotViewSize / 2f).toInt(),
+                0,
+                0
+        )
         dotView.layoutParams = layoutParams
         return dotView
     }
@@ -356,14 +362,10 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
 
         private val cardSpacing: Int = resources.getDimensionPixelOffset(R.dimen.preview_card_spacing)
 
-        override fun getItemOffsets(
-                outRect: Rect,
-                view: View,
-                parent: RecyclerView,
-                state: RecyclerView.State) {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
             val adapterPosition = parent.getChildAdapterPosition(view)
             outRect.left = if (adapterPosition == 0) cardSpacing * 2 else cardSpacing
-            val adapter = parent.adapter?:return
+            val adapter = parent.adapter ?: return
             if (adapterPosition == adapter.itemCount - 1) {
                 outRect.right = cardSpacing
             }
@@ -371,7 +373,6 @@ class StaticObjectDetectionActivity : AppCompatActivity(), View.OnClickListener 
     }
 
     companion object {
-
         private const val TAG = "StaticObjectActivity"
         private const val MAX_IMAGE_DIMENSION = 1024
     }

@@ -32,11 +32,13 @@ class BarcodeField(internal val label:String, internal val value:String) : Parce
 
         @JvmField
         val CREATOR: Parcelable.Creator<BarcodeField> = object : Parcelable.Creator<BarcodeField> {
-            override fun createFromParcel(parcel: Parcel): BarcodeField
-                = BarcodeField( label = parcel.readString()?:"", value = parcel.readString()?:"" )
+            override fun createFromParcel(parcel: Parcel): BarcodeField{
+                return BarcodeField( label = parcel.readString()?:"", value = parcel.readString()?:"" )
+            }
 
-            override fun newArray(size: Int): Array<BarcodeField?>
-                = arrayOfNulls(size)
+            override fun newArray(size: Int): Array<BarcodeField?>{
+                return arrayOfNulls(size)
+            }
 
         }
     }

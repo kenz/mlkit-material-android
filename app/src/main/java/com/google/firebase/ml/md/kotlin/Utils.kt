@@ -57,10 +57,9 @@ object Utils {
 
     internal fun requestRuntimePermissions(activity: Activity) {
 
-        val allNeededPermissions =
-                getRequiredPermissions(activity).filter {
-                    checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
-                }
+        val allNeededPermissions = getRequiredPermissions(activity).filter {
+            checkSelfPermission(activity, it) != PackageManager.PERMISSION_GRANTED
+        }
 
         if (allNeededPermissions.isNotEmpty()) {
             ActivityCompat.requestPermissions(
@@ -68,11 +67,8 @@ object Utils {
         }
     }
 
-    internal fun allPermissionsGranted(context: Context): Boolean =
-            (getRequiredPermissions(context).firstOrNull {
-                checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
-            } == null)
-
+    internal fun allPermissionsGranted(context: Context): Boolean = getRequiredPermissions(context)
+            .all { checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED }
 
     private fun getRequiredPermissions(context: Context): Array<String> {
         return try {
@@ -195,10 +191,11 @@ object Utils {
                 null
         }
 
-        return if (matrix != null)
+        return if (matrix != null) {
             Bitmap.createBitmap(bitmap!!, 0, 0, bitmap.width, bitmap.height, matrix, true)
-        else
+        }else {
             bitmap
+        }
     }
 
     private fun getExifOrientationTag(resolver: ContentResolver, imageUri: Uri): Int {
@@ -213,9 +210,10 @@ object Utils {
             Log.e(TAG, "Failed to open file to read rotation meta data: $imageUri", e)
         }
 
-        return if (exif != null)
+        return if (exif != null) {
             exif!!.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-        else
+        } else {
             ExifInterface.ORIENTATION_UNDEFINED
+        }
     }
 }

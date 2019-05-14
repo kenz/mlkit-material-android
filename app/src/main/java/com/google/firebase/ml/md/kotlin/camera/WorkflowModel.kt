@@ -35,7 +35,6 @@ class WorkflowModel(application: Application) : AndroidViewModel(application) {
     val workflowState = MutableLiveData<WorkflowState>()
     val objectToSearch = MutableLiveData<DetectedObject>()
     val searchedObject = MutableLiveData<SearchedObject>()
-
     val detectedBarcode = MutableLiveData<FirebaseVisionBarcode>()
 
     private val objectIdsToSearch = HashSet<Int>()

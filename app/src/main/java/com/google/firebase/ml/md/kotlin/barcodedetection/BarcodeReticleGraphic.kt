@@ -56,7 +56,8 @@ internal class BarcodeReticleGraphic(overlay: GraphicOverlay, private val animat
                 boxRect.left - offset,
                 boxRect.top - offset,
                 boxRect.right + offset,
-                boxRect.bottom + offset)
+                boxRect.bottom + offset
+        )
         canvas.drawRoundRect(rippleRect, boxCornerRadius, boxCornerRadius, ripplePaint)
     }
 }

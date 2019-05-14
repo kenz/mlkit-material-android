@@ -50,15 +50,16 @@ internal class ObjectGraphicInMultiMode(
     private val minBoxLen: Int
 
     init {
-
         val resources = context.resources
         boxPaint = Paint().apply {
             style = Style.STROKE
             strokeWidth = resources.getDimensionPixelOffset(
-                    if (confirmationController.isConfirmed)
+                    if (confirmationController.isConfirmed) {
                         R.dimen.bounding_box_confirmed_stroke_width
-                    else
-                        R.dimen.bounding_box_stroke_width).toFloat()
+                    } else {
+                        R.dimen.bounding_box_stroke_width
+                    }
+            ).toFloat()
             color = Color.WHITE
         }
 
@@ -74,7 +75,8 @@ internal class ObjectGraphicInMultiMode(
                     overlay.height.toFloat(),
                     ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_start),
                     ContextCompat.getColor(context, R.color.object_confirmed_bg_gradient_end),
-                    TileMode.MIRROR)
+                    TileMode.MIRROR
+            )
         }
 
         eraserPaint = Paint().apply {
@@ -97,7 +99,12 @@ internal class ObjectGraphicInMultiMode(
 
         val cx = (rect.left + rect.right) / 2
         val cy = (rect.top + rect.bottom) / 2
-        rect = RectF(cx - boxWidth / 2f, cy - boxHeight / 2f, cx + boxWidth / 2f, cy + boxHeight / 2f)
+        rect = RectF(
+                cx - boxWidth / 2f,
+                cy - boxHeight / 2f,
+                cx + boxWidth / 2f,
+                cy + boxHeight / 2f
+        )
 
         if (confirmationController.isConfirmed) {
             // Draws the dark background scrim and leaves the detectedObject area clear.
@@ -105,9 +112,9 @@ internal class ObjectGraphicInMultiMode(
             canvas.drawRoundRect(rect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), eraserPaint)
         }
 
-        boxPaint.shader = if (confirmationController.isConfirmed)
+        boxPaint.shader = if (confirmationController.isConfirmed) {
             null
-        else
+        } else {
             LinearGradient(
                     rect.left,
                     rect.top,
@@ -115,7 +122,9 @@ internal class ObjectGraphicInMultiMode(
                     rect.bottom,
                     boxGradientStartColor,
                     boxGradientEndColor,
-                    TileMode.MIRROR)
+                    TileMode.MIRROR
+            )
+        }
         canvas.drawRoundRect(rect, boxCornerRadius.toFloat(), boxCornerRadius.toFloat(), boxPaint)
     }
 }

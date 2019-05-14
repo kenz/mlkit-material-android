@@ -147,7 +147,7 @@ class LiveBarcodeScanningActivity : AppCompatActivity(), OnClickListener {
     }
 
     private fun stopCameraPreview() {
-        val workflowModel = this.workflowModel?:return
+        val workflowModel = this.workflowModel ?: return
         if (workflowModel.isCameraLive) {
             workflowModel.markCameraFrozen()
             flashButton?.isSelected = false
@@ -160,9 +160,7 @@ class LiveBarcodeScanningActivity : AppCompatActivity(), OnClickListener {
 
         // Observes the workflow state changes, if happens, update the overlay view indicators and
         // camera preview state.
-        workflowModel!!.workflowState.observe(
-                this, Observer
-        { workflowState ->
+        workflowModel!!.workflowState.observe(this, Observer { workflowState ->
             if (workflowState == null || Objects.equal(currentWorkflowState, workflowState)) {
                 return@Observer
             }
@@ -196,24 +194,21 @@ class LiveBarcodeScanningActivity : AppCompatActivity(), OnClickListener {
             }
 
             val shouldPlayPromptChipEnteringAnimation = wasPromptChipGone && promptChip?.visibility == View.VISIBLE
-            promptChipAnimator?.let{
-                if(shouldPlayPromptChipEnteringAnimation && !it.isRunning) it.start()
+            promptChipAnimator?.let {
+                if (shouldPlayPromptChipEnteringAnimation && !it.isRunning) it.start()
             }
         })
 
-        workflowModel?.detectedBarcode?.observe(
-                this,
-                Observer { barcode ->
-                    if (barcode != null) {
-                        val barcodeFieldList = ArrayList<BarcodeField>()
-                        barcodeFieldList.add(BarcodeField("Raw Value", barcode.rawValue ?: ""))
-                        BarcodeResultFragment.show(supportFragmentManager, barcodeFieldList)
-                    }
-                })
+        workflowModel?.detectedBarcode?.observe(this, Observer { barcode ->
+            if (barcode != null) {
+                val barcodeFieldList = ArrayList<BarcodeField>()
+                barcodeFieldList.add(BarcodeField("Raw Value", barcode.rawValue ?: ""))
+                BarcodeResultFragment.show(supportFragmentManager, barcodeFieldList)
+            }
+        })
     }
 
     companion object {
-
         private const val TAG = "LiveBarcodeActivity"
     }
 }

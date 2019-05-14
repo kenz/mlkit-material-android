@@ -69,10 +69,7 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
     }
 
     @MainThread
-    override fun onSuccess(
-            image: FirebaseVisionImage,
-            results: List<FirebaseVisionObject>,
-            graphicOverlay: GraphicOverlay) {
+    override fun onSuccess(image: FirebaseVisionImage, results: List<FirebaseVisionObject>, graphicOverlay: GraphicOverlay) {
         var objects = results
         if (!workflowModel.isCameraLive) {
             return
@@ -80,7 +77,9 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
 
         if (PreferenceUtils.isClassificationEnabled(graphicOverlay.context)) {
             val qualifiedObjects = ArrayList<FirebaseVisionObject>()
-            qualifiedObjects.addAll(objects.filter{ it.classificationCategory != FirebaseVisionObject.CATEGORY_UNKNOWN })
+            qualifiedObjects.addAll(objects
+                    .filter { it.classificationCategory != FirebaseVisionObject.CATEGORY_UNKNOWN }
+            )
             objects = qualifiedObjects
         }
 
@@ -94,7 +93,8 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
                 // User is confirming the object selection.
                 confirmationController.confirming(visionObject.trackingId)
                 workflowModel.confirmingObject(
-                        DetectedObject(visionObject, objectIndex, image), confirmationController.progress)
+                        DetectedObject(visionObject, objectIndex, image), confirmationController.progress
+                )
             } else {
                 // Object detected but user doesn't want to pick this one.
                 confirmationController.reset()
@@ -112,7 +112,9 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
                 cameraReticleAnimator.cancel()
                 graphicOverlay.add(
                         ObjectGraphicInProminentMode(
-                                graphicOverlay, objects[0], confirmationController))
+                                graphicOverlay, objects[0], confirmationController
+                        )
+                )
                 if (!confirmationController.isConfirmed && PreferenceUtils.isAutoSearchEnabled(graphicOverlay.context)) {
                     // Shows a loading indicator to visualize the confirming progress if in auto search mode.
                     graphicOverlay.add(ObjectConfirmationGraphic(graphicOverlay, confirmationController))
@@ -122,7 +124,9 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
                 // indicates user is not trying to pick this object.
                 graphicOverlay.add(
                         ObjectGraphicInProminentMode(
-                                graphicOverlay, objects[0], confirmationController))
+                                graphicOverlay, objects[0], confirmationController
+                        )
+                )
                 graphicOverlay.add(ObjectReticleGraphic(graphicOverlay, cameraReticleAnimator))
                 cameraReticleAnimator.start()
             }
@@ -139,7 +143,8 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
                 reticleCenterX - reticleOuterRingRadius,
                 reticleCenterY - reticleOuterRingRadius,
                 reticleCenterX + reticleOuterRingRadius,
-                reticleCenterY + reticleOuterRingRadius)
+                reticleCenterY + reticleOuterRingRadius
+        )
         return reticleRect.intersect(boxRect)
     }
 
@@ -148,7 +153,6 @@ class ProminentObjectProcessor(graphicOverlay: GraphicOverlay, private val workf
     }
 
     companion object {
-
         private const val TAG = "ProminentObjProcessor"
     }
 }

@@ -67,20 +67,18 @@ class CameraReticleAnimator(graphicOverlay: GraphicOverlay) {
 
         val fakeAnimatorForRestartDelay = ValueAnimator.ofInt(0, 0).setDuration(DURATION_RESTART_DORMANCY_MS)
         fakeAnimatorForRestartDelay.startDelay = START_DELAY_RESTART_DORMANCY_MS
-
         animatorSet = AnimatorSet()
         animatorSet.playTogether(
                 rippleFadeInAnimator,
                 rippleFadeOutAnimator,
                 rippleExpandAnimator,
                 rippleStrokeWidthShrinkAnimator,
-                fakeAnimatorForRestartDelay)
+                fakeAnimatorForRestartDelay
+        )
     }
 
     fun start() {
-        if (!animatorSet.isRunning) {
-            animatorSet.start()
-        }
+        if (!animatorSet.isRunning) animatorSet.start()
     }
 
     fun cancel() {

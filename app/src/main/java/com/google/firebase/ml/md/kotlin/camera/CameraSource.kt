@@ -90,7 +90,7 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
     @Synchronized
     @Throws(IOException::class)
     internal fun start(surfaceHolder: SurfaceHolder) {
-        camera?.let { return }
+        if (camera != null) return
 
         camera = createCamera().apply {
             setPreviewDisplay(surfaceHolder)
@@ -174,7 +174,6 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
     @Throws(IOException::class)
     private fun createCamera(): Camera {
         val camera = Camera.open() ?: throw IOException("There is no back-facing camera.")
-
         val parameters = camera.parameters
         setPreviewAndPictureSize(camera, parameters)
         setRotation(camera, parameters)
@@ -183,7 +182,8 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
                 ?: throw IOException("Could not find suitable preview frames per second range.")
         parameters.setPreviewFpsRange(
                 previewFpsRange[Parameters.PREVIEW_FPS_MIN_INDEX],
-                previewFpsRange[Parameters.PREVIEW_FPS_MAX_INDEX])
+                previewFpsRange[Parameters.PREVIEW_FPS_MAX_INDEX]
+        )
 
         parameters.previewFormat = IMAGE_FORMAT
 
@@ -237,9 +237,7 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
         previewSize = sizePair.preview.also {
             Log.v(TAG, "Camera preview size: $it")
             parameters.setPreviewSize(it.width, it.height)
-            PreferenceUtils.saveStringPreference(
-                    context, R.string.pref_key_rear_camera_preview_size, it.toString())
-
+            PreferenceUtils.saveStringPreference(context, R.string.pref_key_rear_camera_preview_size, it.toString())
         }
 
         sizePair.picture?.let { pictureSize ->
@@ -342,7 +340,7 @@ class CameraSource(private val graphicOverlay: GraphicOverlay) {
                 }
 
                 if (!bytesToByteBuffer.containsKey(data)) {
-                    Log.d(TAG, "Skipping frame. Could not find ByteBuffer associated with the image " + "data from the camera.")
+                    Log.d(TAG, "Skipping frame. Could not find ByteBuffer associated with the image data from the camera.")
                     return
                 }
 
